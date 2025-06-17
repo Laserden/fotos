@@ -63,25 +63,27 @@
             <span id="closeModalButton" class="close-button">&times;</span>
 
             <div class="image-display-area">
-                <img id="fullImageView" src="" alt="Full Size View">
-            </div>
+                <img id="fullImageView" src="" alt="Full Size View" />
 
-            <div class="modal-controls">
-                <button id="prevImageButton" class="button-style">&laquo; Prev</button>
-                <button id="nextImageButton" class="button-style">Next &raquo;</button>
-                <button id="zoomInButton" class="button-style">Zoom In</button>
-                <button id="zoomOutButton" class="button-style">Zoom Out</button>
-                <button id="rotateLeftButton" class="button-style">Rotate Left</button>
-                <button id="rotateRightButton" class="button-style">Rotate Right</button>
-                <button id="deleteImageButton" class="button-style danger-button">Delete Image</button>
-                <!-- Placeholder for Modify -->
-                <button id="modifyImageButton" class="button-style" disabled>Modify (Caption)</button>
+                <!-- New wrapper for all overlay content at the bottom -->
+                <div class="image-overlay-bar">
+                    <div id="imageInfo" class="image-info-display-overlay"> <!-- Re-classed -->
+                        <p>Name: <span id="imageNameInfo"></span></p>
+                        <p>Date: <span id="imageDateInfo"></span></p>
+                    </div>
+                    <div class="modal-controls-overlay"> <!-- Re-classed -->
+                        <button id="prevImageButton" class="button-style">&laquo; Prev</button>
+                        <button id="nextImageButton" class="button-style">Next &raquo;</button>
+                        <button id="zoomInButton" class="button-style">Zoom In (+)</button>
+                        <button id="zoomOutButton" class="button-style">Zoom Out (-)</button>
+                        <button id="rotateLeftButton" class="button-style">Rotate L</button>
+                        <button id="rotateRightButton" class="button-style">Rotate R</button>
+                        <button id="deleteImageButton" class="button-style danger-button">Delete</button>
+                        <button id="modifyImageButton" class="button-style" disabled>Modify (Caption)</button>
+                    </div>
+                </div>
             </div>
-
-            <div id="imageInfo" class="image-info-display">
-                <p>Name: <span id="imageNameInfo"></span></p>
-                <p>Date: <span id="imageDateInfo"></span></p>
-            </div>
+            <!-- Old .modal-controls and .image-info-display are removed from here -->
         </div>
     </div>
 </body>

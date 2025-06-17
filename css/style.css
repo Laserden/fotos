@@ -494,8 +494,7 @@ header {
     justify-content: center;
     border: 1px solid #dfe6e9; /* Softer border */
     border-radius: 6px;
-    /* Ensure it has position context for absolutely positioned children if needed,
-       but for relative #fullImageView, this is mainly for overflow. */
+    position: relative; /* Ensure this is the positioning context for the overlay bar */
 }
 
 #fullImageView {
@@ -546,8 +545,8 @@ header {
     box-sizing: border-box;
     border-top: 1px solid #e9ecef;
     /* Consider a subtle bottom border as well, or remove top if it feels too boxed in */
-    /* border-bottom: 1px solid #e9ecef; */ /* Optional: consider if needed now that info is below */
-    border-top: 1px solid #e9ecef; /* This was already there, good for separation from image area */
+    /* border-bottom: 1px solid #e9ecef; */
+    /* border-top: 1px solid #e9ecef; /* This border is no longer needed as it's an overlay */
 }
 
 /* Optional: Style scrollbar for browsers that support it (WebKit) */
@@ -574,32 +573,90 @@ header {
     padding: 6px 12px;
     font-size: 0.875em;
     /* Margins are handled by 'gap' on the container */
-    flex-grow: 0; /* Explicitly prevent growing */
-    flex-shrink: 0; /* Explicitly prevent shrinking beyond content needs */
+    flex-grow: 0;
+    flex-shrink: 0;
 }
 
-/* This also applies to .danger-button if it has .button-style */
-.modal-controls .button-style.danger-button {
-    background-color: #e74c3c; /* Specific red for danger */
-}
-.modal-controls .button-style.danger-button:hover {
-    background-color: #c0392b;
+/* Styling for the new overlay structure */
+.image-overlay-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.7); /* Slightly darker for better contrast with white text */
+    color: #f1f1f1;
+    padding: 8px 10px;
+    box-sizing: border-box;
+    z-index: 10; /* Ensure it's above the image, but below modal close button if it overlaps */
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    border-bottom-left-radius: 6px; /* Match .image-display-area if it has rounded corners */
+    border-bottom-right-radius: 6px;/* Match .image-display-area if it has rounded corners */
 }
 
-/* Ensure disabled state is clear */
-.modal-controls .button-style:disabled {
-    background-color: #ced4da; /* Clearer disabled state */
-    color: #6c757d;
+.image-info-display-overlay { /* New class for info display in overlay */
+    font-size: 0.85em;
+    text-align: center;
+    padding-bottom: 3px; /* Small padding if needed before controls */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2); /* Subtle separator line */
+    margin-bottom: 5px; /* Space before controls */
+}
+.image-info-display-overlay p {
+    margin: 2px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.modal-controls-overlay { /* New class for controls in overlay */
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    justify-content: center; /* Center buttons if they don't fill width */
+    gap: 8px;
+    /* No background needed, parent .image-overlay-bar has it */
+    /* Remove top border from original .modal-controls */
+    border-top: none;
+    padding: 5px 0 0 0; /* Minimal top padding, no other padding */
+}
+
+.modal-controls-overlay .button-style {
+    background-color: rgba(255, 255, 255, 0.15);
+    color: #f1f1f1;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    /* padding, font-size are already small from .modal-controls .button-style */
+}
+.modal-controls-overlay .button-style:hover {
+    background-color: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.6);
+}
+
+.modal-controls-overlay .button-style.danger-button {
+    background-color: rgba(220, 53, 69, 0.6); /* Semi-transparent red */
+    border-color: rgba(220, 53, 69, 0.8);
+    color: #fff;
+}
+.modal-controls-overlay .button-style.danger-button:hover {
+    background-color: rgba(200, 43, 59, 0.75);
+    border-color: rgba(200, 43, 59, 1);
+}
+
+.modal-controls-overlay .button-style:disabled {
+    background-color: rgba(108, 117, 125, 0.3); /* Muted, semi-transparent for disabled */
+    color: rgba(241, 241, 241, 0.5);
+    border-color: rgba(255, 255, 255, 0.2);
     box-shadow: none;
 }
 
-/* Ensure image-info-display is also compact and doesn't grow */
+/* Clean up old .image-info-display styles that are no longer needed as direct child of modal-content */
 .image-info-display {
-    /* ... existing styles (padding, margin-bottom, etc. were reduced previously) ... */
-    flex-grow: 0;   /* Do not allow to grow */
-    flex-shrink: 0; /* Do not allow to shrink beyond content needs */
-    /* Add a top border for separation from controls if desired */
-    border-top: 1px solid #e9ecef;
-    padding-top: 10px; /* Add some padding above the text if border is added */
-    margin-top: 0; /* Remove top margin if border and padding are used for spacing */
+    /* This class is no longer used directly by modal-content for the overlay */
+    /* It might still be used by other elements, or can be removed if exclusively for old layout */
+    /* For safety, if it had flex properties or borders specific to old layout, they are implicitly overridden by new structure */
+    border-top: none; /* Remove old border if it was there */
 }
+
+/* Old .modal-controls class is no longer used for the overlay version */
+/* Styles under .modal-controls might still affect buttons if they share .button-style,
+   but .modal-controls-overlay provides more specific overrides for background/color/border */
