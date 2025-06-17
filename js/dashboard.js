@@ -236,20 +236,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Panning state variables
     let isPanning = false;
-    let startX, startY, initialLeft, initialTop;
+    let panStartX, panStartY, initialImageX, initialImageY; // Renamed for clarity
 
     function applyTransform() {
-        if (fullImageView) {
-            // Reset position before applying scale/rotate to avoid compounding translations
-            if (zoomLevel === 1) { // Only reset position if zoom is back to normal
-                fullImageView.style.left = '0px';
-                fullImageView.style.top = '0px';
-            }
+        const fullImageView = document.getElementById('fullImageView');
+        if (!fullImageView) return;
+
+        if (zoomLevel === 1) {
+            fullImageView.style.left = '';
+            fullImageView.style.top = '';
+            fullImageView.style.maxWidth = '100%'; // Restore initial fit constraint
+            fullImageView.style.maxHeight = '100%';// Restore initial fit constraint
+            fullImageView.style.transform = `scale(1) rotate(${rotationAngle}deg)`;
+            fullImageView.style.cursor = 'default'; // Or 'grab' if preferred at 1x
+        } else {
+            fullImageView.style.maxWidth = 'none'; // Allow to exceed container for zoom
+            fullImageView.style.maxHeight = 'none';// Allow to exceed container for zoom
+            // Panning will set left/top. Transform only handles scale and rotate here.
             fullImageView.style.transform = `scale(${zoomLevel}) rotate(${rotationAngle}deg)`;
+            fullImageView.style.cursor = 'grab';
         }
     }
 
     function openImageViewer(patientId, imageIndex) {
+        if(fullImageView) { // Reset previous state if any
+            fullImageView.style.left = '';
+            fullImageView.style.top = '';
+            delete fullImageView.originalPos; // If we were using this
+        }
         currentPatientIdForViewer = patientId;
         const patients = JSON.parse(localStorage.getItem('patients')) || [];
         const patient = patients.find(p => p.id === patientId);
@@ -268,11 +282,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const image = currentImagesForViewer[currentImageIndexForViewer];
 
-        zoomLevel = 1;
-        rotationAngle = 0;
+        zoomLevel = 1; // Reset zoom level for new image
+        rotationAngle = 0; // Reset rotation for new image
+
         if(fullImageView) {
             fullImageView.src = image.src;
-            fullImageView.style.cursor = 'grab'; // Initial cursor state
+            // Initial cursor state will be set by applyTransform
         }
         if(imageNameInfo) imageNameInfo.textContent = image.name;
         if(imageDateInfo) imageDateInfo.textContent = image.uploadDate;
@@ -322,21 +337,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if(zoomInButton) {
         zoomInButton.addEventListener('click', () => {
-            zoomLevel = Math.min(3, zoomLevel + 0.2); // Max zoom 3x
+            zoomLevel = Math.min(5, zoomLevel + 0.2); // Cap at 5x, increment by 0.2
             applyTransform();
-            fullImageView.style.cursor = zoomLevel > 1 ? 'grab' : 'default';
         });
     }
 
     if(zoomOutButton) {
         zoomOutButton.addEventListener('click', () => {
-            zoomLevel = Math.max(0.5, zoomLevel - 0.2); // Min zoom 0.5x
-            if (zoomLevel === 1) { // Reset position if zoomed back to normal
-                fullImageView.style.left = '0px';
-                fullImageView.style.top = '0px';
-            }
+            zoomLevel = Math.max(0.2, zoomLevel - 0.2); // Min zoom 0.2x
             applyTransform();
-            fullImageView.style.cursor = zoomLevel > 1 ? 'grab' : 'default';
         });
     }
 
@@ -374,40 +383,41 @@ document.addEventListener('DOMContentLoaded', () => {
     // Panning Logic for fullImageView
     if(fullImageView) {
         fullImageView.addEventListener('mousedown', (e) => {
-            if (zoomLevel > 1) { // Only allow panning if zoomed
-                e.preventDefault(); // Prevent image drag selection
+            if (zoomLevel > 1) {
+                e.preventDefault();
                 isPanning = true;
-                startX = e.clientX - (parseFloat(fullImageView.style.left) || 0);
-                startY = e.clientY - (parseFloat(fullImageView.style.top) || 0);
+                panStartX = e.clientX;
+                panStartY = e.clientY;
+                // Get current left/top. If not set (NaN), default to 0.
+                initialImageX = parseFloat(fullImageView.style.left) || 0;
+                initialImageY = parseFloat(fullImageView.style.top) || 0;
                 fullImageView.style.cursor = 'grabbing';
             }
         });
 
-        document.addEventListener('mousemove', (e) => { // Listen on document to allow moving mouse outside image
-            if (isPanning && fullImageView) {
+        document.addEventListener('mousemove', (e) => {
+            if (isPanning && fullImageView && zoomLevel > 1) {
                 e.preventDefault();
-                const x = e.clientX - startX;
-                const y = e.clientY - startY;
-                fullImageView.style.left = `${x}px`;
-                fullImageView.style.top = `${y}px`;
+                const dx = e.clientX - panStartX;
+                const dy = e.clientY - panStartY;
+                fullImageView.style.left = `${initialImageX + dx}px`;
+                fullImageView.style.top = `${initialImageY + dy}px`;
             }
         });
 
-        document.addEventListener('mouseup', () => { // Listen on document
+        document.addEventListener('mouseup', (e) => {
             if (isPanning) {
                 isPanning = false;
-                if(fullImageView) fullImageView.style.cursor = 'grab';
+                if(fullImageView) {
+                    fullImageView.style.cursor = (zoomLevel > 1) ? 'grab' : 'default';
+                }
             }
         });
 
-        fullImageView.addEventListener('mouseleave', () => { // Also stop panning if mouse leaves image
-             if (isPanning) { // If mouse up happens outside, this will also catch it
-                // isPanning = false; // Commented out to allow mouseup on document to handle this
-                // if(fullImageView) fullImageView.style.cursor = 'grab';
-            }
-        });
+        // No need for mouseleave to stop panning if mouseup is on document.
+        // If desired, it can be added to stop panning if mouse leaves modal content area.
 
-        // Initial style for transform
+        // Initial style for transform and position
         fullImageView.style.transformOrigin = 'center center';
         fullImageView.style.transition = 'transform 0.2s ease-out';
         fullImageView.style.position = 'relative'; // Needed for left/top panning

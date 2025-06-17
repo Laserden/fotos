@@ -365,14 +365,24 @@ header {
     justify-content: center;
     border: 1px solid #dfe6e9; /* Softer border */
     border-radius: 6px;
+    /* Ensure it has position context for absolutely positioned children if needed,
+       but for relative #fullImageView, this is mainly for overflow. */
 }
 
 #fullImageView {
-    max-width: 100%;
-    max-height: 100%;
+    position: relative; /* Crucial for left/top panning to work against its static position in flex container */
     display: block;
-    background-color: #fff;
-    border-radius: 4px; /* Subtle rounding of image itself */
+    width: auto;   /* Maintain aspect ratio, will be scaled by transform */
+    height: auto;  /* Maintain aspect ratio, will be scaled by transform */
+    max-width: 100%; /* Initially fit within .image-display-area */
+    max-height: 100%;/* Initially fit within .image-display-area */
+    object-fit: contain; /* Ensure it fits without cropping initially, respects aspect ratio */
+
+    transform-origin: center center; /* Zoom and rotate around center */
+    transition: transform 0.2s ease-out; /* Only transition transform; left/top changes instantly for panning */
+
+    background-color: #fff; /* If image has transparency */
+    border-radius: 4px;
 }
 
 .image-info-display {
