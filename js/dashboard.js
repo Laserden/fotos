@@ -148,29 +148,76 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function attachUploadListeners(patient, uploadAreaEl, fileInputEl) {
-        if (!uploadAreaEl || !fileInputEl) return;
+        if (!uploadAreaEl || !fileInputEl) {
+            console.error(`Dashboard: Could not find upload elements for patient ${patient.id || 'unknown'}`);
+            return;
+        }
 
+        // Clear any existing listeners by replacing the element with its clone (simple way)
+        // Note: This is a bit heavy-handed. For very complex apps, manage listeners individually.
+        // const newUploadAreaEl = uploadAreaEl.cloneNode(true);
+        // uploadAreaEl.parentNode.replaceChild(newUploadAreaEl, uploadAreaEl);
+        // uploadAreaEl = newUploadAreaEl;
+        // For this app's scale, direct addEventListener is okay if displayPatientCards clears innerHTML.
+
+        // Click to select file
         uploadAreaEl.addEventListener('click', (event) => {
+            console.log(`Dashboard: Upload area clicked for patient ${patient.id}`);
+            // Check if the click was on the upload area itself or the direct P child for the prompt
             if (event.target === uploadAreaEl || (event.target.tagName === 'P' && event.target.parentElement === uploadAreaEl)) {
                  fileInputEl.click();
             }
         });
 
-        uploadAreaEl.addEventListener('dragover', (event) => {
+        // Drag and Drop listeners
+        uploadAreaEl.addEventListener('dragenter', (event) => {
+            console.log(`Dashboard: dragenter event on upload area for patient ${patient.id}`);
             event.preventDefault();
+            event.stopPropagation();
             uploadAreaEl.classList.add('dragover');
         });
-        uploadAreaEl.addEventListener('dragleave', (event) => {
-            // No preventDefault needed on dragleave itself
-            uploadAreaEl.classList.remove('dragover');
-        });
-        uploadAreaEl.addEventListener('drop', (event) => {
+
+        uploadAreaEl.addEventListener('dragover', (event) => {
+            console.log(`Dashboard: dragover event on upload area for patient ${patient.id}`);
             event.preventDefault();
-            uploadAreaEl.classList.remove('dragover');
-            handleFileUpload(patient.id, event.dataTransfer.files);
+            event.stopPropagation();
+            uploadAreaEl.classList.add('dragover');
         });
+
+        uploadAreaEl.addEventListener('dragleave', (event) => {
+            console.log(`Dashboard: dragleave event on upload area for patient ${patient.id}`);
+            event.preventDefault();
+            event.stopPropagation();
+            // Smart detection for leaving the actual element vs. entering a child
+            // A common issue: if dragging over a child, parent fires dragleave.
+            // This check attempts to mitigate it. If relatedTarget is null, it means it left the window.
+            // If relatedTarget is not part of uploadAreaEl, then it truly left.
+            if (event.relatedTarget === null || !uploadAreaEl.contains(event.relatedTarget)) {
+                uploadAreaEl.classList.remove('dragover');
+            }
+        });
+
+        uploadAreaEl.addEventListener('drop', (event) => {
+            console.log(`Dashboard: drop event on upload area for patient ${patient.id}`);
+            event.preventDefault();
+            event.stopPropagation();
+            uploadAreaEl.classList.remove('dragover');
+            const files = event.dataTransfer.files;
+            if (files && files.length > 0) {
+                console.log(`Dashboard: Dropped ${files.length} files for patient ${patient.id}. First file: ${files[0].name}`);
+                handleFileUpload(patient.id, files);
+            } else {
+                console.log(`Dashboard: Drop event occurred but no files found for patient ${patient.id}.`);
+            }
+        });
+
+        // File input change listener
         fileInputEl.addEventListener('change', (event) => {
-            handleFileUpload(patient.id, event.target.files);
+            console.log(`Dashboard: fileInput change event for patient ${patient.id}`);
+            const files = event.target.files;
+            if (files && files.length > 0) {
+                handleFileUpload(patient.id, files);
+            }
             event.target.value = null;
         });
     }

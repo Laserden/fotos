@@ -236,18 +236,23 @@ header {
     text-align: center;
     cursor: pointer;
     background-color: #ecf0f1; /* Light grey background */
-    transition: background-color 0.2s ease, border-color 0.2s ease;
+    transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out; /* Smooth transition for dragover */
+    border: 2px dashed #007bff; /* Make border very clear for debugging */
+    background-color: #f0f8ff;  /* Light blue background for debugging */
+    min-height: 100px;          /* Ensure it has a decent height for debugging */
+    /* padding: 20px; Ensure padding is already there from previous styles or add it if needed */
 }
 
 .image-upload-area p {
     margin: 0;
     color: #7f8c8d; /* Muted text color */
     font-size: 0.9em;
+    pointer-events: none; /* Make sure the paragraph itself doesn't interfere with drop on parent */
 }
 
 .image-upload-area.dragover {
-    background-color: #e0e6e8;
-    border-color: #3498db; /* Highlight with primary color */
+    background-color: #e0efff;  /* Slightly darker blue on drag over for debugging */
+    border-color: #0056b3;      /* Darker border for debugging */
 }
 
 .hidden-file-input {
