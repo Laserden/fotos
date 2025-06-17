@@ -14,38 +14,51 @@
 
     <h1>User Authentication</h1>
 
-    <div class="auth-section">
-        <h2>Register</h2>
-        <form id="registrationForm">
-            <div>
-                <label for="regUsername">Username:</label>
-                <input type="text" id="regUsername" required>
-            </div>
-            <div>
-                <label for="regPassword">Password:</label>
-                <input type="password" id="regPassword" required>
-            </div>
-            <button type="submit" id="regButton" class="button-style">Register</button>
-            <p id="regMessage" class="message-area"></p>
-        </form>
-    </div>
-
-    <div class="auth-section">
+    <!-- Login Section Remains Visible -->
+    <div class="auth-section" id="loginSection"> <!-- Added id for clarity if needed -->
         <h2>Login</h2>
         <form id="loginForm">
             <div>
                 <label for="loginUsername">Username:</label>
-                <input type="text" id="loginUsername" required>
+                <input type="text" id="loginUsername" name="loginUsername" required>
             </div>
             <div>
                 <label for="loginPassword">Password:</label>
-                <input type="password" id="loginPassword" required>
+                <input type="password" id="loginPassword" name="loginPassword" required>
             </div>
             <button type="submit" id="loginButton" class="button-style">Login</button>
             <p id="loginMessage" class="message-area"></p>
+            <button type="button" id="openRegistrationModalButton" class="button-style secondary-button" style="margin-top: 15px;">Register New User</button>
         </form>
     </div>
 </div> <!-- .page-container closes -->
-    <script src="js/auth.js"></script>
+
+<!-- New Registration Modal (Outside the main flow of .auth-section for login) -->
+<div id="registrationModal" class="modal" style="display: none;"> <!-- Initially hidden -->
+    <div class="modal-content auth-section"> <!-- Re-using .auth-section for styling consistency, or a more specific .modal-form-section -->
+        <span id="closeRegModalButton" class="close-button">&times;</span>
+        <h2>Register New User</h2>
+        <form id="modalRegistrationForm"> <!-- New ID for this form -->
+            <div>
+                <label for="modalRegUsername">Username:</label>
+                <input type="text" id="modalRegUsername" name="modalRegUsername" required />
+            </div>
+            <div>
+                <label for="modalRegPassword">Password:</label>
+                <input type="password" id="modalRegPassword" name="modalRegPassword" required />
+            </div>
+            <!-- Optional: Confirm Password field
+            <div>
+                <label for="modalRegConfirmPassword">Confirm Password:</label>
+                <input type="password" id="modalRegConfirmPassword" name="modalRegConfirmPassword" required />
+            </div>
+            -->
+            <button type="submit" id="modalRegButton" class="button-style">Register</button>
+            <p class="message-area" id="modalRegMessage"></p>
+        </form>
+    </div>
+</div>
+
+<script src="js/auth.js"></script>
 </body>
 </html>

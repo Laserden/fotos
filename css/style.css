@@ -218,6 +218,20 @@ button[type="submit"]:hover {
     /* Styling handled by .message-area.error */
 }
 
+/* Secondary Button Style (for "Register New User" button) */
+.button-style.secondary-button {
+    background-color: #6c757d; /* Bootstrap's secondary color */
+    color: white;
+    border: 1px solid #6c757d; /* Or a slightly darker shade like #5a6268 */
+    /* width: 100%; /* It inherits this from .button-style if that's the default */
+}
+
+.button-style.secondary-button:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+}
+
+
 /* General .danger-button style (if not already fully defined or needs adjustment) */
 .danger-button {
     background-color: #e74c3c; /* Standard red for danger */
@@ -422,46 +436,48 @@ header {
 /* Image Viewer Modal Styles */
 .modal {
     display: none; /* Hidden by default */
-    position: fixed; /* Stay in place */
-    z-index: 1000; /* Sit on top */
+    position: fixed;
+    z-index: 1000;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    overflow: hidden;
-    background-color: rgba(0,0,0,0.9); /* Darker overlay */
+    overflow: auto; /* Changed from hidden to auto to allow modal scroll if content overflows */
+    background-color: rgba(0,0,0,0.6); /* Slightly lighter overlay than image viewer for differentiation */
+    /* Ensure flex centering is applied for modal content */
+    display: flex; /* Added if not already present or to ensure it overrides other .modal uses if any */
     align-items: center;
     justify-content: center;
 }
 
-.modal-content {
-    position: relative;
-    background-color: #ffffff; /* Brighter white */
-    margin: auto;
-    padding: 25px; /* Increased padding */
-    border-radius: 10px; /* More rounded */
-    width: 90%;
-    max-width: 1100px;
-    max-height: 95vh; /* Allow a bit more vertical space for the modal itself */
-    box-shadow: 0 8px 25px rgba(0,0,0,0.4);
-    display: flex;
-    flex-direction: column;
+/* Ensure .modal-content for registration modal (which uses .auth-section) is well-styled */
+/* .auth-section is already styled with max-width, padding, background, etc.
+   We need to ensure it behaves well as modal content. */
+#registrationModal .modal-content.auth-section {
+    position: relative; /* For absolute positioning of its close button */
+    margin: auto; /* This helps with centering if flex on .modal isn't enough or for older setups */
+    /* max-width: 480px; /* This is already on .auth-section */
+    /* Other specific overrides for .auth-section when it's modal content, if needed: */
+    width: 90%; /* Ensure it's responsive on small screens within modal */
+    /* min-width: 320px; /* Prevent it from becoming too narrow */
 }
 
+
 .close-button {
-    color: #777; /* Softer color */
+    color: #777;
     position: absolute;
-    top: 15px; /* Adjusted position */
-    right: 25px; /* Adjusted position */
-    font-size: 32px; /* Larger for easier clicking */
+    top: 15px;
+    right: 25px;
+    font-size: 32px;
     font-weight: bold;
     cursor: pointer;
+    line-height: 1; /* Ensure consistent height for the 'x' */
     transition: color 0.2s ease;
 }
 
 .close-button:hover,
 .close-button:focus {
-    color: #e74c3c; /* Red hover for close */
+    color: #333; /* Darker hover for general close buttons */
     text-decoration: none;
 }
 
