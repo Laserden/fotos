@@ -21,6 +21,15 @@ body {
     padding: 20px;
 }
 
+/* Logo Styling */
+#loginLogo {
+    display: inline-block; /* Behaves well with text-align:center on parent */
+    max-width: 280px;   /* Adjusted max-width */
+    height: auto;       /* Maintain aspect ratio */
+    /* margin-bottom: 20px; /* This is handled by the wrapper div's style attribute in HTML */
+}
+
+
 /* Headings */
 h1, h2 {
     color: #2c3e50; /* Darker, more modern blue/grey */
@@ -39,20 +48,48 @@ h2 {
 }
 
 /* Form container sections */
-.auth-section, .dashboard-section {
+.auth-section { /* Specific styling for login/registration page sections */
+    background-color: #ffffff;
+    padding: 30px 40px; /* Increased padding for a more spacious feel */
+    margin-left: auto;  /* Center the auth sections */
+    margin-right: auto; /* Center the auth sections */
+    margin-bottom: 30px;
+    border-radius: 10px; /* Slightly more rounded */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* More pronounced shadow */
+    max-width: 480px; /* Max width for login/reg forms */
+}
+.auth-section:last-child {
+    margin-bottom: 0;
+}
+
+.dashboard-section { /* Retain original dashboard section styling if different */
     background-color: #ffffff;
     padding: 25px;
     margin-bottom: 30px;
     border-radius: 8px;
-    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08); /* Softer shadow */
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
 }
-.auth-section:last-child, .dashboard-section:last-child {
+.dashboard-section:last-child {
     margin-bottom: 0;
+}
+
+/* Headings within Auth Sections */
+.auth-section h2 {
+    text-align: center;
+    margin-bottom: 25px; /* More space below h2 */
+    color: #333;
+    font-size: 1.75em; /* Larger for section titles like Register/Login */
+    border-bottom: none; /* Remove global h2 border for auth context */
+    margin-top: 0; /* Remove global h2 margin-top for auth context */
 }
 
 
 /* Form Element Styling */
-form div {
+.auth-section form div { /* Target form groups within auth sections */
+    margin-bottom: 20px; /* More space between form fields */
+}
+
+form div { /* General form div, ensure it doesn't conflict or make more specific */
     margin-bottom: 15px; /* Increased spacing */
 }
 
@@ -94,6 +131,7 @@ input[type="password"]:focus {
     text-align: center;
     transition: background-color 0.2s ease, transform 0.1s ease;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    width: 100%; /* Make buttons full-width within forms by default */
 }
 
 .button-style:hover {
@@ -144,13 +182,24 @@ input[type="password"]:focus {
 }
 
 /* Ensure old form styling is overridden or removed if not needed */
+/* General form styling - should be minimal if sections handle background/padding */
 form {
-    background-color: transparent; /* Handled by .auth-section or .dashboard-section */
+    /* background-color: transparent; Already handled by .auth-section */
     padding: 0;
     margin-bottom: 0;
-    border-radius: 0;
-    box-shadow: none;
+    /* border-radius: 0; */ /* Not needed if form is just a semantic tag here */
+    /* box-shadow: none; */ /* Not needed */
 }
+
+/* Apply full-width specifically to buttons within .auth-section forms if desired */
+.auth-section form .button-style {
+    width: 100%;
+    padding-top: 14px; /* Slightly taller buttons */
+    padding-bottom: 14px;
+    font-size: 1.05em;
+}
+
+
 /* Remove old button styling for submit buttons if .button-style is comprehensive */
 button[type="submit"] {
    /* All styling is now handled by .button-style */
@@ -193,6 +242,38 @@ button[type="submit"]:hover {
     display: block;   /* From inline style */
     width: 100%;      /* From inline style */
     /* Other specific styles if .button-style.danger-button isn't enough */
+}
+
+/* Search Input Styling */
+.search-container {
+    margin-top: 15px; /* Space above search bar */
+    margin-bottom: 25px; /* Space below search bar */
+    /* The .search-container will naturally be 100% width of its parent (.page-container's direct child)
+       If a max-width is desired for the search bar itself (not its container),
+       it can be applied to #searchInput or a wrapper around it.
+       For now, let it be full width of the main content flow. */
+}
+
+#searchInput {
+    width: 100%;
+    padding: 12px 15px;
+    font-size: 1em; /* Match other inputs */
+    border: 1px solid #bdc3c7; /* Match other inputs */
+    border-radius: 5px; /* Match other inputs */
+    box-sizing: border-box;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Match other inputs */
+}
+
+#searchInput:focus {
+    border-color: #3498db; /* Match other inputs' focus color */
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1); /* Match other inputs' focus shadow */
+    outline: none;
+}
+/* Adding specific styles for the search input type if needed, e.g., to hide default clear button on some browsers */
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-decoration {
+  -webkit-appearance: none; /* Hide default clear button in WebKit browsers */
+  appearance: none;
 }
 
 

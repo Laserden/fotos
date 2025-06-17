@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const addPatientButton = document.getElementById('addPatientButton');
     const patientFormMessage = document.getElementById('patientFormMessage');
     const patientCardsContainer = document.getElementById('patientCardsContainer');
+    const searchInput = document.getElementById('searchInput'); // Added search input
 
     // Image Viewer Modal Elements
     const imageViewerModal = document.getElementById('imageViewerModal');
@@ -125,19 +126,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- PATIENT MANAGEMENT ---
-    function displayPatientCards() {
+    function displayPatientCards(patientsToDisplay = patients) { // Modified signature
         if (!patientCardsContainer) {
-            console.error("patientCardsContainer not found in DOM.");
+            console.error("Dashboard: patientCardsContainer not found in DOM.");
             return;
         }
         patientCardsContainer.innerHTML = ''; // Clear existing cards
 
-        if (patients.length === 0) {
-            patientCardsContainer.innerHTML = '<p class="no-images-text" style="text-align:center; width:100%;">No patients added yet.</p>';
+        if (patientsToDisplay.length === 0) {
+            const currentSearchTerm = searchInput ? searchInput.value.trim() : '';
+            if (currentSearchTerm !== '') {
+                patientCardsContainer.innerHTML = '<p class="no-images-text" style="text-align:center; width:100%;">No patients found matching your search.</p>';
+            } else {
+                patientCardsContainer.innerHTML = '<p class="no-images-text" style="text-align:center; width:100%;">No patients added yet.</p>';
+            }
             return;
         }
 
-        patients.forEach(patient => {
+        patientsToDisplay.forEach(patient => { // Use patientsToDisplay
             const card = document.createElement('div');
             card.className = 'patient-card';
             // Ensure IDs are unique and valid for querySelector
@@ -600,5 +606,22 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    displayPatientCards();
+    // Search Input Event Listener
+    if (searchInput) {
+        searchInput.addEventListener('input', () => {
+            const searchTerm = searchInput.value.trim().toLowerCase();
+            if (searchTerm === '') {
+                displayPatientCards(); // Display all patients (uses default global 'patients')
+            } else {
+                const filteredPatients = patients.filter(patient => {
+                    const nameMatch = patient.name.toLowerCase().includes(searchTerm);
+                    const numberMatch = String(patient.number).toLowerCase().includes(searchTerm);
+                    return nameMatch || numberMatch;
+                });
+                displayPatientCards(filteredPatients);
+            }
+        });
+    }
+
+    displayPatientCards(); // Initial display of all patients
 });
