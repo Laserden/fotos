@@ -65,29 +65,54 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function savePatients() {
-       try {
-           localStorage.setItem('patients', JSON.stringify(patients));
-           console.log('Dashboard: Patients saved successfully to localStorage.');
-           return true; // Indicate success
-       } catch (e) {
-           console.error('Dashboard: Error saving patients to localStorage:', e);
-           let userMessage = 'An error occurred while saving data. Changes may not be saved.';
-           // Check for QuotaExceededError more robustly
-           if (e && (e.name === 'QuotaExceededError' ||
-                     e.message && (e.message.toLowerCase().includes('quota') ||
-                                   e.message.toLowerCase().includes('storage'))
-                    )
-              ) {
-               userMessage = 'Storage Full: Browser storage quota exceeded! Unable to save new data. Please delete existing items to free up space.';
-           }
+        // 'patients' global array, 'displayMessage', and 'patientFormMessage'
+        // are assumed to be accessible from the same scope.
 
-           if (typeof displayMessage === 'function' && patientFormMessage) {
-               displayMessage(patientFormMessage, userMessage, 'error');
-           } else {
-               alert(userMessage); // Fallback alert
-           }
-           return false; // Indicate failure
-       }
+        try {
+            localStorage.setItem('patients', JSON.stringify(patients));
+            console.log('Dashboard: Patients saved successfully to localStorage.');
+            return true; // Indicate success
+        } catch (e) {
+            // Log the error immediately in all cases
+            console.error('Dashboard: Error saving patients to localStorage. Error name:', e.name, 'Message:', e.message, 'Full error object:', e);
+
+            let userMessage = 'An error occurred while saving data. New changes might not be persisted.';
+            let messageType = 'error'; // Default message type
+
+            // Check for QuotaExceededError (common names and messages)
+            // DOMException names for quota errors can be:
+            // 'QuotaExceededError' (standard)
+            // 'NS_ERROR_DOM_QUOTA_REACHED' (Firefox)
+            // Some browsers might just throw a generic Error with a message containing "quota".
+            const isQuotaError = e.name === 'QuotaExceededError' ||
+                                 e.name === 'NS_ERROR_DOM_QUOTA_REACHED' ||
+                                 (e.message && typeof e.message === 'string' && e.message.toLowerCase().includes('quota')) ||
+                                 (e.message && typeof e.message === 'string' && e.message.toLowerCase().includes('storage'));
+
+            if (isQuotaError) {
+                userMessage = 'Storage Full: Browser storage quota exceeded! Unable to save changes. Please delete existing items to free up space.';
+                console.warn('Dashboard: QuotaExceededError detected.');
+            } else {
+                console.warn('Dashboard: A non-quota error occurred during save:', e.name);
+            }
+
+            // Attempt to display the user message, but don't let this fail the function
+            try {
+                if (typeof displayMessage === 'function' && patientFormMessage) {
+                    displayMessage(patientFormMessage, userMessage, messageType);
+                } else {
+                    // Fallback if displayMessage or patientFormMessage is not available
+                    alert(userMessage);
+                    console.log('Dashboard: Alert fallback used for user message as displayMessage or patientFormMessage was unavailable.');
+                }
+            } catch (displayError) {
+                console.error('Dashboard: Error trying to display the save error message to the user:', displayError);
+                // Fallback to alert if displayMessage itself fails
+                alert(userMessage);
+            }
+
+            return false; // Indicate failure in all catch scenarios
+        }
     }
 
     function displayMessage(element, message, type = 'error') {
