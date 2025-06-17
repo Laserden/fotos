@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Authentication</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="page-container">
+    <h1>User Authentication</h1>
+
+    <div class="auth-section">
+        <h2>Register</h2>
+        <form id="registrationForm">
+            <div>
+                <label for="regUsername">Username:</label>
+                <input type="text" id="regUsername" required>
+            </div>
+            <div>
+                <label for="regPassword">Password:</label>
+                <input type="password" id="regPassword" required>
+            </div>
+            <button type="submit" id="regButton" class="button-style">Register</button>
+            <p id="regMessage" class="message-area"></p>
+        </form>
+    </div>
+
+    <div class="auth-section">
+        <h2>Login</h2>
+        <form id="loginForm">
+            <div>
+                <label for="loginUsername">Username:</label>
+                <input type="text" id="loginUsername" required>
+            </div>
+            <div>
+                <label for="loginPassword">Password:</label>
+                <input type="password" id="loginPassword" required>
+            </div>
+            <button type="submit" id="loginButton" class="button-style">Login</button>
+            <p id="loginMessage" class="message-area"></p>
+        </form>
+    </div>
+</div> <!-- .page-container closes -->
+    <script src="js/auth.js"></script>
+</body>
+</html>

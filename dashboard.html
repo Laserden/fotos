@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="page-container">
+    <header>
+        <h1>Patient Dashboard</h1>
+        <button id="logoutButton" class="button-style">Logout</button>
+    </header>
+
+    <section id="newPatientSection" class="dashboard-section">
+        <h2>New Patient Card</h2>
+        <form id="newPatientForm">
+            <div>
+                <label for="patientName">Patient Name:</label>
+                <input type="text" id="patientName" required>
+            </div>
+            <div>
+                <label for="patientNumber">Patient Number:</label>
+                <input type="text" id="patientNumber" required>
+            </div>
+            <button type="submit" id="addPatientButton" class="button-style">Add Patient</button>
+            <p id="patientFormMessage" class="message-area"></p>
+        </form>
+    </section>
+
+    <section id="patientCardsSection" class="dashboard-section">
+        <h2>Patient Cards</h2>
+        <div id="patientCardsContainer">
+            <!-- Patient cards will be dynamically inserted here -->
+        </div>
+    </section>
+</div> <!-- .page-container closes -->
+
+    <!--
+    Patient Card Template Structure (for reference in JS):
+    <div class="patient-card">
+        <h3>Patient Name: [Name]</h3>
+        <p>Patient Number: [Number]</p>
+        <div class="image-upload-area">
+            <p>Images:</p>
+            <-- Images and upload form for this patient will go here -->
+        </div>
+    </div>
+    -->
+
+    <script src="js/main.js"></script>
+    <script src="js/dashboard.js"></script>
+
+    <!-- Image Viewer Modal -->
+    <!-- This modal is intentionally outside .page-container for full-screen overlay -->
+    <div id="imageViewerModal" class="modal">
+        <div class="modal-content">
+            <span id="closeModalButton" class="close-button">&times;</span>
+            <div class="image-display-area">
+                <img id="fullImageView" src="" alt="Full Size View">
+            </div>
+            <div id="imageInfo" class="image-info-display">
+                <p>Name: <span id="imageNameInfo"></span></p>
+                <p>Date: <span id="imageDateInfo"></span></p>
+            </div>
+            <div class="modal-controls">
+                <button id="prevImageButton" class="button-style">&laquo; Prev</button>
+                <button id="nextImageButton" class="button-style">Next &raquo;</button>
+                <button id="zoomInButton" class="button-style">Zoom In</button>
+                <button id="zoomOutButton" class="button-style">Zoom Out</button>
+                <button id="rotateLeftButton" class="button-style">Rotate Left</button>
+                <button id="rotateRightButton" class="button-style">Rotate Right</button>
+                <button id="deleteImageButton" class="button-style danger-button">Delete Image</button>
+                <!-- Placeholder for Modify -->
+                <button id="modifyImageButton" class="button-style" disabled>Modify (Caption)</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

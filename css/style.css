@@ -1,0 +1,426 @@
+/* Global Resets and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Modern font stack */
+    line-height: 1.6; /* Improved readability */
+    background-color: #f0f2f5; /* Softer background color */
+    color: #333; /* Default text color */
+    padding: 0; /* Remove body padding, handle spacing with containers */
+    margin: 0; /* Ensure no default margin */
+}
+
+/* General container for pages to allow padding and max-width */
+.page-container {
+    max-width: 1200px;
+    margin: 0 auto; /* Center content */
+    padding: 20px;
+}
+
+/* Headings */
+h1, h2 {
+    color: #2c3e50; /* Darker, more modern blue/grey */
+    margin-bottom: 20px;
+}
+h1 {
+    font-size: 2em;
+    text-align: center; /* Center main page titles */
+    margin-bottom: 30px;
+}
+h2 {
+    font-size: 1.5em;
+    border-bottom: 1px solid #e0e0e0; /* Subtle separator for sections */
+    padding-bottom: 10px;
+    margin-top: 30px; /* Space above section titles */
+}
+
+/* Form container sections */
+.auth-section, .dashboard-section {
+    background-color: #ffffff;
+    padding: 25px;
+    margin-bottom: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08); /* Softer shadow */
+}
+.auth-section:last-child, .dashboard-section:last-child {
+    margin-bottom: 0;
+}
+
+
+/* Form Element Styling */
+form div {
+    margin-bottom: 15px; /* Increased spacing */
+}
+
+label {
+    display: block;
+    margin-bottom: 8px; /* Increased spacing */
+    color: #34495e; /* Darker label color */
+    font-weight: 600; /* Slightly bolder labels */
+}
+
+input[type="text"],
+input[type="password"] {
+    width: 100%; /* Full width */
+    padding: 12px; /* Increased padding */
+    border: 1px solid #bdc3c7; /* Softer border color */
+    border-radius: 5px; /* Slightly more rounded */
+    font-size: 1em; /* Consistent font size */
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus {
+    border-color: #3498db; /* Highlight color on focus */
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1); /* Subtle glow on focus */
+    outline: none;
+}
+
+/* General Button Styling */
+.button-style {
+    display: inline-block;
+    background-color: #3498db; /* Primary button color (blue) */
+    color: white;
+    padding: 12px 20px; /* Adjusted padding */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em; /* Consistent font size */
+    font-weight: 600;
+    text-align: center;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.button-style:hover {
+    background-color: #2980b9; /* Darker shade on hover */
+}
+
+.button-style:active {
+    transform: translateY(1px); /* Slight press effect */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.button-style:disabled {
+    background-color: #bdc3c7; /* Muted color for disabled */
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* Specific button overrides if needed (e.g., logout) */
+#logoutButton {
+    background-color: #e74c3c; /* Red for logout/danger */
+}
+#logoutButton:hover {
+    background-color: #c0392b; /* Darker red on hover */
+}
+
+/* Message Area Styling */
+.message-area {
+    margin-top: 15px;
+    padding: 12px;
+    border-radius: 5px;
+    font-size: 0.95em;
+    text-align: center;
+    display: none; /* Hide by default, JS will show */
+}
+
+.message-area.success {
+    color: #1abc9c; /* Green for success */
+    background-color: #e8f8f5;
+    border: 1px solid #a3e9d7;
+    display: block; /* Show when class is added */
+}
+
+.message-area.error {
+    color: #e74c3c; /* Red for error */
+    background-color: #fdedec;
+    border: 1px solid #f5b7b1;
+    display: block; /* Show when class is added */
+}
+
+/* Ensure old form styling is overridden or removed if not needed */
+form {
+    background-color: transparent; /* Handled by .auth-section or .dashboard-section */
+    padding: 0;
+    margin-bottom: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+/* Remove old button styling for submit buttons if .button-style is comprehensive */
+button[type="submit"] {
+   /* All styling is now handled by .button-style */
+}
+button[type="submit"]:hover {
+   /* All styling is now handled by .button-style */
+}
+/* Remove old message styling if .message-area is comprehensive */
+#regMessage, #loginMessage {
+    /* Styling handled by .message-area */
+}
+.success {
+    /* Styling handled by .message-area.success */
+}
+.error {
+    /* Styling handled by .message-area.error */
+}
+
+
+/* Dashboard Specific Styles */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 20px;
+}
+
+#logoutButton {
+    background-color: #d9534f;
+    color: white;
+    padding: 8px 15px; /* Keep if this specific button needs different padding */
+    /* border: none; - Handled by .button-style */
+    /* border-radius: 4px; - Handled by .button-style */
+    /* cursor: pointer; - Handled by .button-style */
+    font-size: 0.9em; /* Slightly smaller for header button */
+}
+
+/* #logoutButton:hover handled by .button-style and its specific color override */
+
+/* .dashboard-section already styled above */
+/* #newPatientSection, #patientCardsSection {
+    margin-bottom: 30px;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+} */
+
+#patientCardsContainer {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.patient-card {
+    border: 1px solid #dfe6e9; /* Softer border */
+    padding: 20px; /* Increased padding */
+    border-radius: 6px;
+    background-color: #fdfdfd; /* Slightly off-white */
+    box-shadow: 0 1px 5px rgba(0,0,0,0.05); /* Subtle shadow for depth */
+}
+
+.patient-card h3 {
+    margin-top: 0;
+    margin-bottom: 10px; /* Space below title */
+    color: #2980b9; /* Primary theme color */
+    font-size: 1.2em;
+}
+
+.patient-card p {
+    font-size: 0.95em; /* Consistent text size */
+    margin-bottom: 8px; /* Consistent spacing */
+    color: #555;
+}
+
+.image-upload-area {
+    margin-top: 20px; /* Increased space */
+    padding: 20px; /* Increased padding */
+    border: 2px dashed #bdc3c7; /* Softer dashed border */
+    border-radius: 6px;
+    text-align: center;
+    cursor: pointer;
+    background-color: #ecf0f1; /* Light grey background */
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.image-upload-area p {
+    margin: 0;
+    color: #7f8c8d; /* Muted text color */
+    font-size: 0.9em;
+}
+
+.image-upload-area.dragover {
+    background-color: #e0e6e8;
+    border-color: #3498db; /* Highlight with primary color */
+}
+
+.hidden-file-input {
+    display: none;
+}
+
+.image-thumbnails-container {
+    margin-top: 20px; /* Increased space */
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px; /* Increased gap */
+    justify-content: flex-start;
+}
+
+.thumbnail-item {
+    width: 130px; /* Slightly larger */
+    border: 1px solid #dfe6e9; /* Softer border */
+    padding: 8px; /* Increased padding */
+    border-radius: 5px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.07);
+    text-align: left;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.thumbnail-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+
+.thumbnail-img {
+    width: 100%;
+    height: 90px; /* Slightly taller */
+    object-fit: cover;
+    border-radius: 4px; /* More rounded */
+    margin-bottom: 8px; /* Increased space */
+}
+
+.thumbnail-name {
+    font-size: 0.85em; /* Slightly larger */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 4px !important;
+    color: #34495e;
+}
+
+.thumbnail-date {
+    font-size: 0.75em; /* Slightly larger */
+    color: #7f8c8d;
+    margin-bottom: 0 !important;
+}
+.no-images-text {
+    font-size: 0.95em; /* Consistent with other p text */
+    color: #7f8c8d; /* Muted color */
+    width: 100%; /* Make it take full width of the container */
+    text-align: center;
+}
+
+/* Image Viewer Modal Styles */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1000; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: rgba(0,0,0,0.9); /* Darker overlay */
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    position: relative;
+    background-color: #ffffff; /* Brighter white */
+    margin: auto;
+    padding: 25px; /* Increased padding */
+    border-radius: 10px; /* More rounded */
+    width: 90%;
+    max-width: 1100px; /* Slightly wider for larger images */
+    max-height: 90vh; /* Slightly less height to ensure controls fit well */
+    box-shadow: 0 8px 25px rgba(0,0,0,0.4); /* Stronger shadow */
+    display: flex;
+    flex-direction: column;
+}
+
+.close-button {
+    color: #777; /* Softer color */
+    position: absolute;
+    top: 15px; /* Adjusted position */
+    right: 25px; /* Adjusted position */
+    font-size: 32px; /* Larger for easier clicking */
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: #e74c3c; /* Red hover for close */
+    text-decoration: none;
+}
+
+.image-display-area {
+    width: 100%;
+    height: calc(90vh - 180px); /* Dynamically calculate height based on modal height and other elements */
+    min-height: 300px; /* Minimum height for the display area */
+    overflow: hidden;
+    margin-bottom: 20px; /* Increased space */
+    background-color: #ecf0f1; /* Softer background */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #dfe6e9; /* Softer border */
+    border-radius: 6px;
+}
+
+#fullImageView {
+    max-width: 100%;
+    max-height: 100%;
+    display: block;
+    background-color: #fff;
+    border-radius: 4px; /* Subtle rounding of image itself */
+}
+
+.image-info-display {
+    text-align: center;
+    margin-bottom: 20px; /* Increased space */
+    padding: 12px; /* Increased padding */
+    background-color: #f8f9fa; /* Very light grey */
+    border-radius: 5px;
+    border: 1px solid #e9ecef; /* Light border */
+}
+
+.image-info-display p {
+    margin: 6px 0; /* Adjusted spacing */
+    font-size: 0.95em;
+    color: #495057; /* Darker grey for text */
+}
+.image-info-display span {
+    font-weight: 600; /* Bolder info labels */
+    color: #343a40; /* Even darker for actual info */
+}
+
+
+.modal-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px; /* Increased gap */
+    justify-content: center;
+    padding-top: 15px; /* Adjusted padding */
+    border-top: 1px solid #e9ecef; /* Lighter border */
+}
+
+/* .modal-controls button uses .button-style defined earlier */
+/* Ensure specific styles for modal buttons if needed */
+.modal-controls .button-style {
+    padding: 10px 18px; /* Slightly adjusted padding for modal buttons */
+    font-size: 0.95em;
+}
+
+.modal-controls .button-style.danger-button {
+    background-color: #e74c3c; /* Specific red for danger */
+}
+.modal-controls .button-style.danger-button:hover {
+    background-color: #c0392b;
+}
+
+/* Ensure disabled state is clear */
+.modal-controls .button-style:disabled {
+    background-color: #ced4da; /* Clearer disabled state */
+    color: #6c757d;
+    box-shadow: none;
+}
