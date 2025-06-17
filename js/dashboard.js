@@ -46,49 +46,57 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `;
             patientCardsContainer.appendChild(card);
-            // Call renderImageThumbnails for this patient
-            renderImageThumbnails(patient.id, card.querySelector(`#thumbnails-${patient.id}`));
 
-            // Setup event listeners for this card's upload area
-            setupUploadEventListeners(patient.id);
+            const currentUploadArea = card.querySelector(`#upload-area-${patient.id}`);
+            const currentFileInput = card.querySelector(`#fileInput-${patient.id}`);
+            const currentThumbnailsContainer = card.querySelector(`#thumbnails-${patient.id}`);
+
+            // Call renderImageThumbnails for this patient
+            renderImageThumbnails(patient.id, currentThumbnailsContainer);
+
+            // Setup event listeners for this card's upload area, passing elements directly
+            setupUploadEventListeners(patient.id, currentUploadArea, currentFileInput);
         });
     }
 
-    function setupUploadEventListeners(patientId) {
-        const uploadArea = document.getElementById(`upload-area-${patientId}`);
-        const fileInput = document.getElementById(`fileInput-${patientId}`);
-
-        if (!uploadArea || !fileInput) return;
+    // Modified to accept elements directly
+    function setupUploadEventListeners(patientId, uploadAreaElement, fileInputElement) {
+        if (!uploadAreaElement || !fileInputElement) {
+            console.error(`Could not find upload elements (uploadArea or fileInput) for patient ${patientId}. Listeners not attached.`);
+            return;
+        }
 
         // Click on area triggers file input
-        uploadArea.addEventListener('click', (e) => {
+        // Replaced addEventListener with direct assignment for simplicity, can be reverted if specific listener features are needed
+        uploadAreaElement.onclick = (e) => {
             // Prevent triggering click if a child element (like a button inside later) is clicked
-            if (e.target === uploadArea || e.target.tagName === 'P') {
-                 fileInput.click();
+            // or if the click is on an already uploaded image or its info.
+            if (e.target === uploadAreaElement || e.target.tagName === 'P' && e.target.parentElement === uploadAreaElement) {
+                 fileInputElement.click();
             }
-        });
+        };
 
-        fileInput.addEventListener('change', (event) => {
+        fileInputElement.onchange = (event) => {
             handleImageUpload(patientId, event.target.files);
             event.target.value = null; // Reset file input
-        });
+        };
 
-        uploadArea.addEventListener('dragover', (event) => {
+        uploadAreaElement.ondragover = (event) => {
             event.preventDefault();
-            uploadArea.classList.add('dragover');
-        });
+            uploadAreaElement.classList.add('dragover');
+        };
 
-        uploadArea.addEventListener('dragleave', (event) => {
-            event.preventDefault();
-            uploadArea.classList.remove('dragover');
-        });
+        uploadAreaElement.ondragleave = (event) => {
+            // No preventDefault needed here as it's not canceling a default action for dragleave itself
+            uploadAreaElement.classList.remove('dragover');
+        };
 
-        uploadArea.addEventListener('drop', (event) => {
+        uploadAreaElement.ondrop = (event) => {
             event.preventDefault();
-            uploadArea.classList.remove('dragover');
+            uploadAreaElement.classList.remove('dragover');
             const files = event.dataTransfer.files;
             handleImageUpload(patientId, files);
-        });
+        };
     }
 
 
@@ -441,8 +449,13 @@ function renderImageThumbnails(patientId, thumbnailsContainer) {
             imgElement.src = image.src;
             imgElement.alt = image.name;
             imgElement.className = 'thumbnail-img';
-            // Add click listener to open viewer
-            imgElement.addEventListener('click', () => openImageViewer(patient.id, index));
+
+            // Add click listener to the wrapper (thumbnailItem) to open viewer
+            // and stop propagation to prevent uploadArea's click listener.
+            thumbnailWrapper.addEventListener('click', (event) => {
+                event.stopPropagation(); // Crucial to prevent event bubbling
+                openImageViewer(patient.id, index);
+            });
 
             const nameElement = document.createElement('p');
             nameElement.textContent = image.name;
