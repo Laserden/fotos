@@ -434,8 +434,9 @@ header {
 }
 
 /* Image Viewer Modal Styles */
+/* This .modal class is also used by #registrationModal */
 .modal {
-    display: none; /* Hidden by default */
+    display: none; /* Hidden by default - CRITICAL for initial state */
     position: fixed;
     z-index: 1000;
     left: 0;
@@ -509,8 +510,10 @@ header {
     transform-origin: center center; /* Zoom and rotate around center */
     transition: transform 0.2s ease-out; /* Only transition transform; left/top changes instantly for panning */
 
-    background-color: #fff; /* If image has transparency */
+    /* background-color: #fff; /* If image has transparency -- changed to transparent */
     border-radius: 4px;
+    background-color: transparent; /* Ensure no background if src is empty and modal not hidden */
+    border: none;             /* Ensure no border if src is empty and modal not hidden */
 }
 
 .image-info-display {
@@ -543,10 +546,10 @@ header {
     gap: 8px;               /* Spacing between buttons */
     width: 100%;
     box-sizing: border-box;
-    border-top: 1px solid #e9ecef;
+    /* border-top: 1px solid #e9ecef;  /* This border is no longer needed as it's an overlay */
     /* Consider a subtle bottom border as well, or remove top if it feels too boxed in */
     /* border-bottom: 1px solid #e9ecef; */
-    /* border-top: 1px solid #e9ecef; /* This border is no longer needed as it's an overlay */
+    border-top: 1px solid #e9ecef; /* This was already there, good for separation from image area */
 }
 
 /* Optional: Style scrollbar for browsers that support it (WebKit) */
@@ -660,3 +663,5 @@ header {
 /* Old .modal-controls class is no longer used for the overlay version */
 /* Styles under .modal-controls might still affect buttons if they share .button-style,
    but .modal-controls-overlay provides more specific overrides for background/color/border */
+
+[end of css/style.css]
