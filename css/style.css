@@ -520,18 +520,43 @@ header {
 
 .modal-controls {
     display: flex;
-    flex-wrap: wrap;
-    gap: 8px; /* Reduced gap for smaller buttons */
-    justify-content: center;
-    padding: 10px 5px; /* Reduced padding */
+    flex-wrap: nowrap;      /* Force single line */
+    overflow-x: auto;       /* Allow horizontal scrolling */
+    overflow-y: hidden;     /* Prevent vertical scroll on this element */
+    justify-content: flex-start; /* Align buttons to the start */
+    padding: 8px 5px;       /* Minimal vertical padding, some horizontal for scrollbar */
+    gap: 8px;               /* Spacing between buttons */
+    width: 100%;
+    box-sizing: border-box;
     border-top: 1px solid #e9ecef;
+    /* Consider a subtle bottom border as well, or remove top if it feels too boxed in */
+    /* border-bottom: 1px solid #e9ecef; */
+}
+
+/* Optional: Style scrollbar for browsers that support it (WebKit) */
+.modal-controls::-webkit-scrollbar {
+    height: 6px; /* Height of the scrollbar */
+}
+
+.modal-controls::-webkit-scrollbar-track {
+    background: #f1f1f1; /* Optional: Track color */
+}
+
+.modal-controls::-webkit-scrollbar-thumb {
+    background: #ccc; /* Color of the scrollbar thumb */
+    border-radius: 3px;
+}
+
+.modal-controls::-webkit-scrollbar-thumb:hover {
+    background: #bbb;
 }
 
 /* Styles for buttons specifically within .modal-controls */
 .modal-controls .button-style {
-    padding: 6px 12px;   /* Significantly reduced padding */
-    font-size: 0.875em;  /* Smaller font */
-    /* margin: 3px; /* Apply small margin if gap isn't enough or for more control */
+    flex-shrink: 0;         /* Prevent buttons from shrinking */
+    padding: 6px 12px;
+    font-size: 0.875em;
+    /* Margins are handled by 'gap' on the container */
 }
 
 /* This also applies to .danger-button if it has .button-style */
