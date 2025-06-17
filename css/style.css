@@ -169,6 +169,32 @@ button[type="submit"]:hover {
     /* Styling handled by .message-area.error */
 }
 
+/* General .danger-button style (if not already fully defined or needs adjustment) */
+.danger-button {
+    background-color: #e74c3c; /* Standard red for danger */
+    color: white;
+    /* border: 1px solid #c0392b; /* Optional: if .button-style doesn't set a border or you want to override */
+}
+.danger-button:hover {
+    background-color: #c0392b !important; /* Darker red on hover, !important if overriding a more specific .button-style:hover */
+}
+.button-style.danger-button { /* Ensure specificity if .button-style has conflicting properties */
+    /* e.g. if .button-style sets a blue background, this makes it red */
+    background-color: #e74c3c;
+}
+.button-style.danger-button:hover {
+    background-color: #c0392b;
+}
+
+
+/* Delete Patient Button Specifics */
+.delete-patient-button {
+    margin-top: 15px; /* From inline style */
+    display: block;   /* From inline style */
+    width: 100%;      /* From inline style */
+    /* Other specific styles if .button-style.danger-button isn't enough */
+}
+
 
 /* Dashboard Specific Styles */
 header {

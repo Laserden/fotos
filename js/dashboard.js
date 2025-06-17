@@ -89,11 +89,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (!uploadAreaElement || !fileInputElement || !thumbnailsContainerElement) {
                 console.error(`Core elements missing for patient card ${patient.id}. Uploads or thumbnails may not work.`);
-                return; // Skip this card if essential parts are missing
+                // return; // Don't skip card, just log error for missing parts. Delete button should still work.
             }
 
             renderImageThumbnails(patient, thumbnailsContainerElement);
             attachUploadListeners(patient, uploadAreaElement, fileInputElement);
+
+            // Create and append the delete patient button
+            const deletePatientBtn = document.createElement('button');
+            deletePatientBtn.className = 'delete-patient-button button-style danger-button';
+            deletePatientBtn.textContent = 'Delete Patient';
+            deletePatientBtn.setAttribute('data-patient-id', patient.id);
+            // Inline styles for margin, display, width removed as they are now in CSS
+
+            card.appendChild(deletePatientBtn);
+
+            // Event listener for deleting this specific patient will be added later (next subtask)
         });
     }
 
@@ -223,26 +234,88 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleFileUpload(patientId, files) {
+        // 'patients' array, 'savePatients' and 'displayPatientCards' functions
+        // are assumed to be accessible from the same scope this function is defined in
+        // (e.g., within the DOMContentLoaded listener).
+
         const patient = patients.find(p => p.id === patientId);
-        if (!patient) return;
+        if (!patient) {
+            console.error('Dashboard: Patient not found for ID:', patientId);
+            return;
+        }
 
-        Array.from(files).forEach(file => {
-            if (!file.type.startsWith('image/')) return;
+        const imageFiles = Array.from(files).filter(file => {
+            if (!file.type.startsWith('image/')) {
+                console.log(`Dashboard: Skipped non-image file: ${file.name}`);
+                return false;
+            }
+            return true;
+        });
 
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const newImage = {
-                    id: Date.now().toString() + '-' + Math.random().toString(36).substr(2, 9),
-                    src: e.target.result,
-                    name: file.name,
-                    uploadDate: new Date().toLocaleDateString()
+        if (imageFiles.length === 0) {
+            console.log('Dashboard: No valid image files selected or dropped.');
+            return;
+        }
+
+        console.log(`Dashboard: Processing ${imageFiles.length} image files for patient ${patient.id}.`);
+
+        // Define helper function inside handleFileUpload to have access to its scope if needed,
+        // or define it in the broader scope if it's generally useful.
+        const readFileAsDataURL = (file) => {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    // Resolve with an object containing all needed info for the new image
+                    resolve({
+                        id: Date.now().toString() + '-' + Math.random().toString(36).substring(2, 11) + '-' + encodeURIComponent(file.name).replace(/[^a-zA-Z0-9_.-]/g, ''), // More robust unique ID
+                        src: reader.result,
+                        name: file.name,
+                        uploadDate: new Date().toLocaleDateString()
+                    });
                 };
-                patient.images.push(newImage);
+                reader.onerror = (error) => {
+                    console.error('Dashboard: FileReader error for file ' + file.name + ':', error);
+                    reject(error); // Reject the promise for this file
+                };
+                reader.readAsDataURL(file);
+            });
+        };
+
+        Promise.all(imageFiles.map(file => readFileAsDataURL(file)))
+            .then(newImages => {
+                // newImages is an array of successfully processed image objects
+                // (e.g., { id, src, name, uploadDate })
+
+                if (!patient.images) { // Ensure patient.images array exists
+                    patient.images = [];
+                }
+                patient.images.push(...newImages); // Add all new images at once
+
+                console.log(`Dashboard: Successfully added ${newImages.length} images to patient ${patient.id}. Total images now: ${patient.images.length}`);
+
+                savePatients(); // Call once after all images are processed
+                displayPatientCards(); // Call once to refresh UI
+
+                // Assuming 'patientFormMessage' is accessible for displaying messages
+                // You might want a different message element for upload success.
+                if (typeof displayMessage === 'function' && patientFormMessage) {
+                     displayMessage(patientFormMessage, `${newImages.length} image(s) uploaded successfully!`, 'success');
+                }
+            })
+            .catch(error => {
+                // This catch will trigger if any of the readFileAsDataURL promises reject.
+                // Or if there's an error in the .then() block itself.
+                console.error('Dashboard: Error processing one or more files during upload:', error);
+                if (typeof displayMessage === 'function' && patientFormMessage) {
+                    displayMessage(patientFormMessage, 'Error uploading one or more images. Some images may not have been saved.', 'error');
+                }
+                // Still save and refresh UI to reflect any partially successful uploads if some promises resolved before one rejected.
+                // However, Promise.all fails fast, so newImages might be empty if an early file fails.
+                // A more robust solution for partial success would use Promise.allSettled if available/polyfilled.
+                // For now, we call save/display to ensure UI consistency with what might have been added before an error.
                 savePatients();
                 displayPatientCards();
-            };
-            reader.readAsDataURL(file);
-        });
+            });
     }
 
     // --- IMAGE VIEWER ---
@@ -403,6 +476,32 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // --- PATIENT DELETION HANDLER ---
+    function handleDeletePatient(patientIdToDelete) {
+        console.log(`Dashboard: Attempting to delete patient with ID: ${patientIdToDelete}`);
+
+        // 'patients' variable is from the parent DOMContentLoaded scope
+        const patientToDelete = patients.find(p => p.id === patientIdToDelete);
+        const patientName = patientToDelete ? patientToDelete.name : 'this patient';
+
+        if (!confirm(`Are you sure you want to delete ${patientName} and all associated data? This action cannot be undone.`)) {
+            console.log('Dashboard: Patient deletion cancelled by user.');
+            return;
+        }
+
+        // Modify the 'patients' array from the parent scope
+        patients = patients.filter(patient => patient.id !== patientIdToDelete);
+
+        savePatients(); // Uses 'savePatients' from parent scope
+        displayPatientCards(); // Uses 'displayPatientCards' from parent scope
+
+        // Uses 'displayMessage' and 'patientFormMessage' from parent scope
+        if (typeof displayMessage === 'function' && patientFormMessage) {
+            displayMessage(patientFormMessage, `Patient '${patientName}' and all their data have been deleted.`, 'success');
+        }
+        console.log(`Dashboard: Patient ${patientIdToDelete} deleted successfully.`);
+    }
+
     // --- LOGOUT ---
     if (logoutButton) {
         logoutButton.addEventListener('click', () => {
@@ -413,5 +512,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- INITIALIZATION ---
     if (closeModalButton) closeModalButton.addEventListener('click', closeImageViewer);
+
+    // Delegated event listener for deleting patients
+    if (patientCardsContainer) {
+        patientCardsContainer.addEventListener('click', (event) => {
+            if (event.target.classList.contains('delete-patient-button')) {
+                const patientIdToDelete = event.target.getAttribute('data-patient-id');
+                if (patientIdToDelete) {
+                    handleDeletePatient(patientIdToDelete);
+                }
+            }
+        });
+    }
+
     displayPatientCards();
 });
