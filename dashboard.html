@@ -61,13 +61,11 @@
     <div id="imageViewerModal" class="modal">
         <div class="modal-content">
             <span id="closeModalButton" class="close-button">&times;</span>
+
             <div class="image-display-area">
                 <img id="fullImageView" src="" alt="Full Size View">
             </div>
-            <div id="imageInfo" class="image-info-display">
-                <p>Name: <span id="imageNameInfo"></span></p>
-                <p>Date: <span id="imageDateInfo"></span></p>
-            </div>
+
             <div class="modal-controls">
                 <button id="prevImageButton" class="button-style">&laquo; Prev</button>
                 <button id="nextImageButton" class="button-style">Next &raquo;</button>
@@ -78,6 +76,11 @@
                 <button id="deleteImageButton" class="button-style danger-button">Delete Image</button>
                 <!-- Placeholder for Modify -->
                 <button id="modifyImageButton" class="button-style" disabled>Modify (Caption)</button>
+            </div>
+
+            <div id="imageInfo" class="image-info-display">
+                <p>Name: <span id="imageNameInfo"></span></p>
+                <p>Date: <span id="imageDateInfo"></span></p>
             </div>
         </div>
     </div>

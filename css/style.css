@@ -546,7 +546,8 @@ header {
     box-sizing: border-box;
     border-top: 1px solid #e9ecef;
     /* Consider a subtle bottom border as well, or remove top if it feels too boxed in */
-    /* border-bottom: 1px solid #e9ecef; */
+    /* border-bottom: 1px solid #e9ecef; */ /* Optional: consider if needed now that info is below */
+    border-top: 1px solid #e9ecef; /* This was already there, good for separation from image area */
 }
 
 /* Optional: Style scrollbar for browsers that support it (WebKit) */
@@ -573,6 +574,8 @@ header {
     padding: 6px 12px;
     font-size: 0.875em;
     /* Margins are handled by 'gap' on the container */
+    flex-grow: 0; /* Explicitly prevent growing */
+    flex-shrink: 0; /* Explicitly prevent shrinking beyond content needs */
 }
 
 /* This also applies to .danger-button if it has .button-style */
@@ -588,4 +591,15 @@ header {
     background-color: #ced4da; /* Clearer disabled state */
     color: #6c757d;
     box-shadow: none;
+}
+
+/* Ensure image-info-display is also compact and doesn't grow */
+.image-info-display {
+    /* ... existing styles (padding, margin-bottom, etc. were reduced previously) ... */
+    flex-grow: 0;   /* Do not allow to grow */
+    flex-shrink: 0; /* Do not allow to shrink beyond content needs */
+    /* Add a top border for separation from controls if desired */
+    border-top: 1px solid #e9ecef;
+    padding-top: 10px; /* Add some padding above the text if border is added */
+    margin-top: 0; /* Remove top margin if border and padding are used for spacing */
 }
