@@ -441,9 +441,9 @@ header {
     padding: 25px; /* Increased padding */
     border-radius: 10px; /* More rounded */
     width: 90%;
-    max-width: 1100px; /* Slightly wider for larger images */
-    max-height: 90vh; /* Slightly less height to ensure controls fit well */
-    box-shadow: 0 8px 25px rgba(0,0,0,0.4); /* Stronger shadow */
+    max-width: 1100px;
+    max-height: 95vh; /* Allow a bit more vertical space for the modal itself */
+    box-shadow: 0 8px 25px rgba(0,0,0,0.4);
     display: flex;
     flex-direction: column;
 }
@@ -467,10 +467,11 @@ header {
 
 .image-display-area {
     width: 100%;
-    height: calc(90vh - 180px); /* Dynamically calculate height based on modal height and other elements */
-    min-height: 300px; /* Minimum height for the display area */
+    /* height: calc(90vh - 180px); Let flex-grow manage this primarily */
+    min-height: 250px; /* Reduced min-height, but flex-grow is key */
     overflow: hidden;
-    margin-bottom: 20px; /* Increased space */
+    margin-bottom: 15px; /* Slightly reduced margin as controls are smaller */
+    flex-grow: 1; /* Allow this area to take up available vertical space */
     background-color: #ecf0f1; /* Softer background */
     display: flex;
     align-items: center;
@@ -499,40 +500,41 @@ header {
 
 .image-info-display {
     text-align: center;
-    margin-bottom: 20px; /* Increased space */
-    padding: 12px; /* Increased padding */
-    background-color: #f8f9fa; /* Very light grey */
+    margin-bottom: 10px; /* Reduced margin */
+    padding: 8px 10px;   /* Reduced padding */
+    background-color: #f8f9fa;
     border-radius: 5px;
-    border: 1px solid #e9ecef; /* Light border */
+    border: 1px solid #e9ecef;
 }
 
 .image-info-display p {
-    margin: 6px 0; /* Adjusted spacing */
-    font-size: 0.95em;
-    color: #495057; /* Darker grey for text */
+    margin: 4px 0; /* Reduced paragraph margins */
+    font-size: 0.9em; /* Slightly smaller font */
+    color: #495057;
 }
 .image-info-display span {
-    font-weight: 600; /* Bolder info labels */
-    color: #343a40; /* Even darker for actual info */
+    font-weight: 600;
+    color: #343a40;
 }
 
 
 .modal-controls {
     display: flex;
     flex-wrap: wrap;
-    gap: 12px; /* Increased gap */
+    gap: 8px; /* Reduced gap for smaller buttons */
     justify-content: center;
-    padding-top: 15px; /* Adjusted padding */
-    border-top: 1px solid #e9ecef; /* Lighter border */
+    padding: 10px 5px; /* Reduced padding */
+    border-top: 1px solid #e9ecef;
 }
 
-/* .modal-controls button uses .button-style defined earlier */
-/* Ensure specific styles for modal buttons if needed */
+/* Styles for buttons specifically within .modal-controls */
 .modal-controls .button-style {
-    padding: 10px 18px; /* Slightly adjusted padding for modal buttons */
-    font-size: 0.95em;
+    padding: 6px 12px;   /* Significantly reduced padding */
+    font-size: 0.875em;  /* Smaller font */
+    /* margin: 3px; /* Apply small margin if gap isn't enough or for more control */
 }
 
+/* This also applies to .danger-button if it has .button-style */
 .modal-controls .button-style.danger-button {
     background-color: #e74c3c; /* Specific red for danger */
 }
