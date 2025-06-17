@@ -28,7 +28,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const deleteImageButton = document.getElementById('deleteImageButton');
 
     // App State
-    let patients = JSON.parse(localStorage.getItem('patients')) || [];
+    let patients = [];
+    loadPatients(); // Load patients at the start of the script execution within DOMContentLoaded
     let currentPatientIdForViewer = null;
     let currentImageIndexForViewer = null;
     let currentImagesForViewer = [];
@@ -38,8 +39,55 @@ document.addEventListener('DOMContentLoaded', () => {
     let panStartX, panStartY, initialImageX, initialImageY;
 
     // --- UTILITY FUNCTIONS ---
+    function loadPatients() {
+        try {
+            const storedPatients = localStorage.getItem('patients');
+            if (storedPatients) {
+                patients = JSON.parse(storedPatients);
+                console.log('Dashboard: Patients loaded successfully from localStorage.');
+            } else {
+                patients = []; // No stored data, start fresh
+                console.log('Dashboard: No patients found in localStorage. Starting with an empty list.');
+            }
+        } catch (e) {
+            console.error('Dashboard: Error loading patients from localStorage:', e);
+            patients = []; // Start with an empty array if loading or parsing fails
+            // Display error to user if critical, or handle silently if preferred
+            if (typeof displayMessage === 'function' && patientFormMessage) { // Check if patientFormMessage is available
+                displayMessage(patientFormMessage, 'Could not load existing patient data. Starting fresh. If this persists, your browser storage might be corrupted or full.', 'error');
+            } else {
+                // Fallback if displayMessage or patientFormMessage isn't ready/available
+                // This might happen if error occurs very early.
+                // alert('Could not load existing patient data. Starting fresh.');
+                console.warn('Dashboard: displayMessage or patientFormMessage not available for loadPatients error.');
+            }
+        }
+    }
+
     function savePatients() {
-        localStorage.setItem('patients', JSON.stringify(patients));
+       try {
+           localStorage.setItem('patients', JSON.stringify(patients));
+           console.log('Dashboard: Patients saved successfully to localStorage.');
+           return true; // Indicate success
+       } catch (e) {
+           console.error('Dashboard: Error saving patients to localStorage:', e);
+           let userMessage = 'An error occurred while saving data. Changes may not be saved.';
+           // Check for QuotaExceededError more robustly
+           if (e && (e.name === 'QuotaExceededError' ||
+                     e.message && (e.message.toLowerCase().includes('quota') ||
+                                   e.message.toLowerCase().includes('storage'))
+                    )
+              ) {
+               userMessage = 'Storage Full: Browser storage quota exceeded! Unable to save new data. Please delete existing items to free up space.';
+           }
+
+           if (typeof displayMessage === 'function' && patientFormMessage) {
+               displayMessage(patientFormMessage, userMessage, 'error');
+           } else {
+               alert(userMessage); // Fallback alert
+           }
+           return false; // Indicate failure
+       }
     }
 
     function displayMessage(element, message, type = 'error') {
@@ -263,19 +311,20 @@ document.addEventListener('DOMContentLoaded', () => {
         // or define it in the broader scope if it's generally useful.
         const readFileAsDataURL = (file) => {
             return new Promise((resolve, reject) => {
+                console.log(`Dashboard: Preparing to read file. Name: ${file.name}, Size: ${file.size}, Type: ${file.type}, LastModified: ${new Date(file.lastModified).toISOString()}`);
+
                 const reader = new FileReader();
                 reader.onload = () => {
-                    // Resolve with an object containing all needed info for the new image
                     resolve({
-                        id: Date.now().toString() + '-' + Math.random().toString(36).substring(2, 11) + '-' + encodeURIComponent(file.name).replace(/[^a-zA-Z0-9_.-]/g, ''), // More robust unique ID
+                        id: Date.now().toString() + '-' + Math.random().toString(36).substring(2, 11) + '-' + encodeURIComponent(file.name).replace(/[^a-zA-Z0-9_.-]/g, ''),
                         src: reader.result,
                         name: file.name,
                         uploadDate: new Date().toLocaleDateString()
                     });
                 };
-                reader.onerror = (error) => {
-                    console.error('Dashboard: FileReader error for file ' + file.name + ':', error);
-                    reject(error); // Reject the promise for this file
+                reader.onerror = (errorEvent) => {
+                    console.error(`Dashboard: FileReader error for file '${file.name}'. Error object:`, reader.error, 'Event:', errorEvent);
+                    reject(reader.error || new Error(`FileReader error for ${file.name}`));
                 };
                 reader.readAsDataURL(file);
             });
@@ -283,38 +332,39 @@ document.addEventListener('DOMContentLoaded', () => {
 
         Promise.all(imageFiles.map(file => readFileAsDataURL(file)))
             .then(newImages => {
-                // newImages is an array of successfully processed image objects
-                // (e.g., { id, src, name, uploadDate })
-
-                if (!patient.images) { // Ensure patient.images array exists
+                if (!patient.images) {
                     patient.images = [];
                 }
-                patient.images.push(...newImages); // Add all new images at once
+                const originalImageCount = patient.images.length; // Store original length
 
-                console.log(`Dashboard: Successfully added ${newImages.length} images to patient ${patient.id}. Total images now: ${patient.images.length}`);
+                patient.images.push(...newImages); // Add new images to the in-memory array
 
-                savePatients(); // Call once after all images are processed
-                displayPatientCards(); // Call once to refresh UI
+                console.log(`Dashboard: Attempting to save ${newImages.length} new images for patient ${patient.id}.`);
 
-                // Assuming 'patientFormMessage' is accessible for displaying messages
-                // You might want a different message element for upload success.
-                if (typeof displayMessage === 'function' && patientFormMessage) {
-                     displayMessage(patientFormMessage, `${newImages.length} image(s) uploaded successfully!`, 'success');
+                const saveSuccess = savePatients(); // Attempt to save
+
+                if (saveSuccess) {
+                    console.log(`Dashboard: Successfully saved ${newImages.length} images for patient ${patient.id}. Total images now: ${patient.images.length}`);
+                    displayPatientCards(); // Call once to refresh UI
+                    if (typeof displayMessage === 'function' && patientFormMessage) {
+                        displayMessage(patientFormMessage, `${newImages.length} image(s) uploaded and saved successfully!`, 'success');
+                    }
+                } else {
+                    // Save failed (likely QuotaExceededError, message already shown by savePatients)
+                    console.warn(`Dashboard: Failed to save images for patient ${patient.id} due to storage quota (or other save error). Reverting in-memory addition.`);
+                    patient.images.splice(originalImageCount, newImages.length); // Revert the in-memory addition
+                    // Do not call displayPatientCards() here if the goal is to keep UI reflecting last good save.
+                    // However, if an error occurs and the user is notified, they might expect the UI to reflect the reverted state.
+                    // For now, let's call displayPatientCards() to show the reverted state.
+                    // This ensures the UI doesn't show thumbnails for images that couldn't be saved.
+                    displayPatientCards();
                 }
             })
-            .catch(error => {
-                // This catch will trigger if any of the readFileAsDataURL promises reject.
-                // Or if there's an error in the .then() block itself.
-                console.error('Dashboard: Error processing one or more files during upload:', error);
+            .catch(error => { // This catch is for FileReader errors primarily
+                console.error('Dashboard: Error during Promise.all for file uploads (FileReader stage). The error object was:', error);
                 if (typeof displayMessage === 'function' && patientFormMessage) {
-                    displayMessage(patientFormMessage, 'Error uploading one or more images. Some images may not have been saved.', 'error');
+                    displayMessage(patientFormMessage, 'Error reading one or more files. Upload failed.', 'error');
                 }
-                // Still save and refresh UI to reflect any partially successful uploads if some promises resolved before one rejected.
-                // However, Promise.all fails fast, so newImages might be empty if an early file fails.
-                // A more robust solution for partial success would use Promise.allSettled if available/polyfilled.
-                // For now, we call save/display to ensure UI consistency with what might have been added before an error.
-                savePatients();
-                displayPatientCards();
             });
     }
 
