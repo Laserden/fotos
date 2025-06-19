@@ -1,9 +1,21 @@
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('Dashboard JS: SCRIPT EXECUTION STARTED (DOMContentLoaded) - v2'); // Version marker
+
+    console.log('Dashboard JS: Attempting to find imageViewerModal for initial check (v2)...');
+    const imageViewerModalAtStart = document.getElementById('imageViewerModal');
+    if (imageViewerModalAtStart) {
+        console.log('Dashboard JS: imageViewerModal element WAS FOUND at the start of the script (v2).');
+    } else {
+        console.error('Dashboard JS: imageViewerModal element WAS NOT FOUND at the start of the script (v2)!');
+    }
+
     // Authentication Check
     if (!localStorage.getItem('loggedInUser')) {
+        console.warn('Dashboard JS: User not logged in. Redirecting to index.html. Further script execution on dashboard.js will stop. (v2)'); // NEW LOG
         window.location.href = 'index.html';
         return;
     }
+    console.log('Dashboard JS: User is logged in. Proceeding with dashboard script. (v2)'); // NEW LOG
 
     // DOM Elements
     const logoutButton = document.getElementById('logoutButton');
@@ -28,9 +40,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const rotateRightButton = document.getElementById('rotateRightButton');
     const deleteImageButton = document.getElementById('deleteImageButton');
 
+    // Change Password Modal Elements
+    const openChangePasswordModalButton = document.getElementById('openChangePasswordModalButton');
+    const changePasswordModal = document.getElementById('changePasswordModal');
+    const closeChangePasswordModalButton = document.getElementById('closeChangePasswordModalButton');
+    const changePasswordForm = document.getElementById('changePasswordForm');
+    const currentPasswordInput = document.getElementById('currentPassword');
+    const newPasswordInput = document.getElementById('newPassword');
+    const confirmNewPasswordInput = document.getElementById('confirmNewPassword');
+    const changePasswordMessage = document.getElementById('changePasswordMessage');
+
     // App State
     let patients = [];
-    loadPatients(); // Load patients at the start of the script execution within DOMContentLoaded
+    console.log('Dashboard JS: About to call loadPatients() (v2)...');
+    loadPatients(); // Existing call
+    console.log('Dashboard JS: Returned from loadPatients() (v2). Current patients count:', patients.length);
     let currentPatientIdForViewer = null;
     let currentImageIndexForViewer = null;
     let currentImagesForViewer = [];
@@ -41,26 +65,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- UTILITY FUNCTIONS ---
     function loadPatients() {
+        console.log('Dashboard JS: loadPatients() called (v2).');
         try {
             const storedPatients = localStorage.getItem('patients');
             if (storedPatients) {
                 patients = JSON.parse(storedPatients);
-                console.log('Dashboard: Patients loaded successfully from localStorage.');
+                console.log('Dashboard JS: Patients loaded successfully from localStorage (v2). Count:', patients.length);
             } else {
-                patients = []; // No stored data, start fresh
-                console.log('Dashboard: No patients found in localStorage. Starting with an empty list.');
+                patients = [];
+                console.log('Dashboard JS: No patients found in localStorage. Initializing empty array (v2).');
             }
         } catch (e) {
-            console.error('Dashboard: Error loading patients from localStorage:', e);
-            patients = []; // Start with an empty array if loading or parsing fails
-            // Display error to user if critical, or handle silently if preferred
-            if (typeof displayMessage === 'function' && patientFormMessage) { // Check if patientFormMessage is available
-                displayMessage(patientFormMessage, 'Could not load existing patient data. Starting fresh. If this persists, your browser storage might be corrupted or full.', 'error');
+            console.error('Dashboard JS: Error loading/parsing patients from localStorage (v2):', e.name, e.message, e);
+            patients = [];
+            // Error display to user:
+            const msgDisplayEl = document.getElementById('patientFormMessage');
+            if (typeof displayMessage === 'function' && msgDisplayEl) {
+                displayMessage(msgDisplayEl, 'Error: Could not load patient data. Starting with a fresh session.', 'error');
             } else {
-                // Fallback if displayMessage or patientFormMessage isn't ready/available
-                // This might happen if error occurs very early.
-                // alert('Could not load existing patient data. Starting fresh.');
-                console.warn('Dashboard: displayMessage or patientFormMessage not available for loadPatients error.');
+                // alert('Error: Could not load patient data. Starting with a fresh session.');
+                console.warn('Dashboard JS: displayMessage or msgDisplayEl not available for loadPatients error (v2). Alert fallback commented out.');
             }
         }
     }
@@ -592,6 +616,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- INITIALIZATION ---
+    console.log('Dashboard JS: About to attach main event listeners (v2)...');
     if (closeModalButton) closeModalButton.addEventListener('click', closeImageViewer);
 
     // Delegated event listener for deleting patients
@@ -622,6 +647,116 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+    console.log('Dashboard JS: Finished attaching main event listeners (v2).');
 
+    // --- Change Password Modal Logic ---
+    function openChangePassModal() {
+        if (changePasswordForm) changePasswordForm.reset();
+        if (changePasswordMessage) {
+            changePasswordMessage.textContent = '';
+            changePasswordMessage.className = 'message-area';
+        }
+        if (changePasswordModal) changePasswordModal.style.display = 'flex';
+    }
+
+    function closeChangePassModal() {
+        if (changePasswordModal) changePasswordModal.style.display = 'none';
+    }
+
+    if (openChangePasswordModalButton) {
+        openChangePasswordModalButton.addEventListener('click', openChangePassModal);
+    }
+    if (closeChangePasswordModalButton) {
+        closeChangePasswordModalButton.addEventListener('click', closeChangePassModal);
+    }
+    if (changePasswordModal) {
+        changePasswordModal.addEventListener('click', (event) => {
+            if (event.target === changePasswordModal) {
+                closeChangePassModal();
+            }
+        });
+    }
+    // Close change password modal with Escape key - added to existing listener
+    // The existing keydown listener for image viewer modal escape needs to be made more general or duplicated.
+    // For now, let's add a specific one for this modal, then consider refactoring.
+    window.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && changePasswordModal && changePasswordModal.style.display === 'flex') {
+            closeChangePassModal();
+        }
+    });
+
+    if (changePasswordForm) {
+        changePasswordForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const currentPassword = currentPasswordInput.value; // No .trim() for passwords
+            const newPassword = newPasswordInput.value;
+            const confirmNewPassword = confirmNewPasswordInput.value;
+
+            if (!currentPassword || !newPassword || !confirmNewPassword) {
+                displayMessage(changePasswordMessage, 'All password fields are required.', 'error');
+                return;
+            }
+            if (newPassword !== confirmNewPassword) {
+                displayMessage(changePasswordMessage, 'New passwords do not match.', 'error');
+                return;
+            }
+            if (newPassword.length < 1) { // Basic check, can be more complex (e.g. min length)
+                displayMessage(changePasswordMessage, 'New password cannot be empty.', 'error');
+                return;
+            }
+
+            const loggedInUsername = localStorage.getItem('loggedInUser');
+            let users = JSON.parse(localStorage.getItem('users')) || [];
+            const userIndex = users.findIndex(u => u.username === loggedInUsername);
+
+            if (!loggedInUsername || userIndex === -1) {
+                displayMessage(changePasswordMessage, 'Error: User not found. Please log out and log back in.', 'error');
+                return;
+            }
+
+            if (users[userIndex].password !== currentPassword) {
+                displayMessage(changePasswordMessage, 'Incorrect current password.', 'error');
+                return;
+            }
+
+            // All checks passed, update password
+            users[userIndex].password = newPassword;
+
+            try {
+                localStorage.setItem('users', JSON.stringify(users));
+                displayMessage(changePasswordMessage, 'Password updated successfully!', 'success');
+                setTimeout(closeChangePassModal, 1500);
+            } catch (e) {
+                console.error("Dashboard: Error saving updated users array for password change:", e);
+                let userMsg = "Failed to save new password. Storage might be full or another error occurred.";
+                 if (e.name === 'QuotaExceededError' || (e.message && e.message.toLowerCase().includes('quota'))) {
+                    userMsg = 'Storage Full: Could not save new password. Please try again after freeing up space.';
+                 }
+                displayMessage(changePasswordMessage, userMsg, 'error');
+                 // If save failed, consider if we need to revert the in-memory 'users' array change for this session.
+                 // For now, the in-memory 'users' array is changed, but it won't persist if this save failed.
+                 // This could be an issue if other parts of the app read 'users' array expecting it to be persisted.
+            }
+        });
+    }
+
+
+    console.log('Dashboard JS: About to make initial call to displayPatientCards() (v2)...');
     displayPatientCards(); // Initial display of all patients
+    console.log('Dashboard JS: Returned from initial call to displayPatientCards() (v2).');
+
+    // Defensive hide for imageViewerModal at the very end
+    console.log('Dashboard JS: Reached defensive hiding code for modal (v2)...');
+    const imageViewerModalInstance = document.getElementById('imageViewerModal');
+    if (imageViewerModalInstance) {
+        const computedStyle = window.getComputedStyle(imageViewerModalInstance);
+        if (computedStyle.display !== 'none') {
+            console.log('Dashboard JS: END SCRIPT: imageViewerModal was not display:none (computed style). Forcing hide via inline style. Current computed display:', computedStyle.display);
+            imageViewerModalInstance.style.display = 'none';
+        } else {
+            console.log('Dashboard JS: END SCRIPT: imageViewerModal was already display:none (computed style) as expected.');
+        }
+    } else {
+        console.warn('Dashboard JS: END SCRIPT: imageViewerModal element not found for defensive hide.');
+    }
 });

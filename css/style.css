@@ -231,6 +231,30 @@ button[type="submit"]:hover {
     border-color: #545b62;
 }
 
+/* Styling for buttons within the main page header */
+body > .page-container > header { /* More specific selector for the main page header */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /* padding-bottom, border-bottom, margin-bottom are already defined for header globally */
+}
+
+body > .page-container > header > div { /* Wrapper for header buttons */
+    display: flex; /* Align buttons in a row */
+    gap: 10px; /* Space between buttons in the header */
+}
+
+body > .page-container > header .button-style { /* Target buttons within this specific header */
+    width: auto; /* Override the default 100% width from .button-style for header buttons */
+    padding: 8px 15px; /* Potentially custom padding for header buttons */
+    font-size: 0.9em; /* Slightly smaller font for header buttons */
+    /* margin-left: 10px; /* Replaced by gap on the parent div */
+}
+/* Ensure #logoutButton (which is a .danger-button) also respects this sizing if it's in the header */
+body > .page-container > header #logoutButton.button-style {
+    /* Specific overrides for logout button in header if needed, beyond .danger-button */
+}
+
 
 /* General .danger-button style (if not already fully defined or needs adjustment) */
 .danger-button {
@@ -292,26 +316,23 @@ input[type="search"]::-webkit-search-decoration {
 
 
 /* Dashboard Specific Styles */
+/* General header styling - some parts moved to more specific selector above */
 header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    /* display: flex; */ /* Moved to more specific: body > .page-container > header */
+    /* justify-content: space-between; */ /* Moved */
+    /* align-items: center; */ /* Moved */
     padding-bottom: 10px;
     border-bottom: 1px solid #ddd;
     margin-bottom: 20px;
 }
 
-#logoutButton {
-    background-color: #d9534f;
-    color: white;
-    padding: 8px 15px; /* Keep if this specific button needs different padding */
-    /* border: none; - Handled by .button-style */
-    /* border-radius: 4px; - Handled by .button-style */
-    /* cursor: pointer; - Handled by .button-style */
-    font-size: 0.9em; /* Slightly smaller for header button */
-}
 
-/* #logoutButton:hover handled by .button-style and its specific color override */
+/* #logoutButton specific styling (color is by .danger-button, sizing by header context) */
+/* #logoutButton {
+    padding: 8px 15px;
+    font-size: 0.9em;
+} */
+
 
 /* .dashboard-section already styled above */
 /* #newPatientSection, #patientCardsSection {
@@ -436,7 +457,7 @@ header {
 /* Image Viewer Modal Styles */
 /* This .modal class is also used by #registrationModal */
 .modal {
-    display: none; /* Hidden by default - CRITICAL for initial state */
+    display: none; /* Base rule */
     position: fixed;
     z-index: 1000;
     left: 0;
@@ -451,28 +472,36 @@ header {
     justify-content: center;
 }
 
+/* Aggressive hide for imageViewerModal specifically, for diagnostic purposes */
+/* This selector attempts to be highly specific. */
+body #imageViewerModal.modal,
+#imageViewerModal.modal { /* Fallback if body direct child isn't the case */
+    display: none !important; /* Force it to be hidden. For testing the theory. */
+}
+
+
 /* Ensure .modal-content for registration modal (which uses .auth-section) is well-styled */
 /* .auth-section is already styled with max-width, padding, background, etc.
    We need to ensure it behaves well as modal content. */
-#registrationModal .modal-content.auth-section {
-    position: relative; /* For absolute positioning of its close button */
-    margin: auto; /* This helps with centering if flex on .modal isn't enough or for older setups */
-    /* max-width: 480px; /* This is already on .auth-section */
-    /* Other specific overrides for .auth-section when it's modal content, if needed: */
-    width: 90%; /* Ensure it's responsive on small screens within modal */
-    /* min-width: 320px; /* Prevent it from becoming too narrow */
+#registrationModal .modal-content.auth-section,
+#changePasswordModal .modal-content.auth-section { /* Apply to both modals using .auth-section */
+    position: relative;
+    margin: auto;
+    width: 90%;
+    max-width: 480px; /* Max width inherited from .auth-section, good for these forms */
+    /* min-width: 300px; /* Adjusted min-width for smaller screens */
 }
 
 
 .close-button {
     color: #777;
     position: absolute;
-    top: 15px;
-    right: 25px;
-    font-size: 32px;
+    top: 10px; /* Slightly higher for modals with less internal padding */
+    right: 15px; /* Slightly closer for modals with less internal padding */
+    font-size: 28px; /* Slightly smaller to match potentially smaller modal title */
     font-weight: bold;
     cursor: pointer;
-    line-height: 1; /* Ensure consistent height for the 'x' */
+    line-height: 1;
     transition: color 0.2s ease;
 }
 

@@ -8,9 +8,12 @@
 </head>
 <body>
 <div class="page-container">
-    <header>
+    <header style="display: flex; justify-content: space-between; align-items: center;"> <!-- Ensure header uses flex for button alignment -->
         <h1>Patient Dashboard</h1>
-        <button id="logoutButton" class="button-style">Logout</button>
+        <div> <!-- Wrapper for header buttons -->
+            <button type="button" id="openChangePasswordModalButton" class="button-style secondary-button" style="margin-left: 10px;">Change Password</button>
+            <button id="logoutButton" class="button-style" style="margin-left: 10px;">Logout</button> <!-- Added margin-left for spacing -->
+        </div>
     </header>
 
     <section id="newPatientSection" class="dashboard-section">
@@ -57,21 +60,17 @@
     <script src="js/dashboard.js"></script>
 
     <!-- Image Viewer Modal -->
-    <!-- This modal is intentionally outside .page-container for full-screen overlay -->
     <div id="imageViewerModal" class="modal">
         <div class="modal-content">
             <span id="closeModalButton" class="close-button">&times;</span>
-
             <div class="image-display-area">
                 <img id="fullImageView" src="" alt="Full Size View" />
-
-                <!-- New wrapper for all overlay content at the bottom -->
                 <div class="image-overlay-bar">
-                    <div id="imageInfo" class="image-info-display-overlay"> <!-- Re-classed -->
+                    <div id="imageInfo" class="image-info-display-overlay">
                         <p>Name: <span id="imageNameInfo"></span></p>
                         <p>Date: <span id="imageDateInfo"></span></p>
                     </div>
-                    <div class="modal-controls-overlay"> <!-- Re-classed -->
+                    <div class="modal-controls-overlay">
                         <button id="prevImageButton" class="button-style">&laquo; Prev</button>
                         <button id="nextImageButton" class="button-style">Next &raquo;</button>
                         <button id="zoomInButton" class="button-style">Zoom In (+)</button>
@@ -83,8 +82,32 @@
                     </div>
                 </div>
             </div>
-            <!-- Old .modal-controls and .image-info-display are removed from here -->
         </div>
     </div>
+
+    <!-- New Change Password Modal -->
+    <div id="changePasswordModal" class="modal" style="display: none;">
+        <div class="modal-content auth-section">
+            <span id="closeChangePasswordModalButton" class="close-button">&times;</span>
+            <h2>Change Password</h2>
+            <form id="changePasswordForm">
+                <div>
+                    <label for="currentPassword">Current Password:</label>
+                    <input type="password" id="currentPassword" name="currentPassword" required />
+                </div>
+                <div>
+                    <label for="newPassword">New Password:</label>
+                    <input type="password" id="newPassword" name="newPassword" required />
+                </div>
+                <div>
+                    <label for="confirmNewPassword">Confirm New Password:</label>
+                    <input type="password" id="confirmNewPassword" name="confirmNewPassword" required />
+                </div>
+                <button type="submit" id="updatePasswordButton" class="button-style">Update Password</button>
+                <p class="message-area" id="changePasswordMessage"></p>
+            </form>
+        </div>
+    </div>
+
 </body>
 </html>
