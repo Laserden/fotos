@@ -1,4 +1,5 @@
 <!-- templates/index.html -->
+{# ... (extends, block title, welcome message) ... #}
 {% extends "base.html" %}
 
 {% block title %}Dashboard - Laserdental{% endblock %}
@@ -8,71 +9,95 @@
     <h2>Bienvenido al Dashboard{% if current_user.is_authenticated %}, {{ current_user.username }}{% endif %}!</h2>
 
     <section class="summary-boxes">
-        <div class="summary-box" style="border-left-color: #28a745;">
-            <span class="icon">&#x1F44D;</span> <div><h3>Aceptado</h3><p class="count">0</p><p class="total-amount">&euro;0.00</p></div>
-        </div>
-        <div class="summary-box" style="border-left-color: #dc3545;">
-            <span class="icon">&#x1F44E;</span> <div><h3>Rechazado totalmente</h3><p class="count">0</p><p class="total-amount">&euro;0.00</p></div>
-        </div>
-        <div class="summary-box" style="border-left-color: #6f42c1;">
-            <span class="icon">&#x1F4B8;</span> <div><h3>Aceptado financiado</h3><p class="count">0</p><p class="total-amount">&euro;0.00</p></div>
-        </div>
-        <div class="summary-box" style="border-left-color: #fd7e14;">
-            <span class="icon">&#x26A1;</span> <div><h3>Aceptado pronto pago</h3><p class="count">0</p><p class="total-amount">&euro;0.00</p></div>
-        </div>
-        <div class="summary-box" style="border-left-color: #17a2b8;">
-            <span class="icon">&#x1F4DD;</span> <div><h3>Según tratamiento</h3><p class="count">0</p><p class="total-amount">&euro;0.00</p></div>
-        </div>
-        <div class="summary-box" style="border-left-color: #ffc107;">
-            <span class="icon">&#x23F3;</span> <div><h3>Pendientes y seguimiento</h3><p class="count">0</p><p class="total-amount">&euro;0.00</p></div>
-        </div>
-         <div class="summary-box" style="border-left-color: #007bff;">
-            <span class="icon">&#x1F3C1;</span> <div><h3>Finalizado</h3><p class="count">0</p><p class="total-amount">&euro;0.00</p></div>
-        </div>
+        {% set box_styles = {
+            'Aceptado': 'border-left-color: #28a745;', 'Rechazado totalmente': 'border-left-color: #dc3545;',
+            'Aceptado financiado': 'border-left-color: #6f42c1;', 'Aceptado pronto pago': 'border-left-color: #fd7e14;',
+            'Según tratamiento': 'border-left-color: #17a2b8;', 'Pendientes y seguimiento': 'border-left-color: #ffc107;',
+            'Finalizado': 'border-left-color: #007bff;'
+        } %}
+        {% set box_icons = {
+            'Aceptado': '&#x1F44D;', 'Rechazado totalmente': '&#x1F44E;', 'Aceptado financiado': '&#x1F4B8;',
+            'Aceptado pronto pago': '&#x26A1;', 'Según tratamiento': '&#x1F4DD;',
+            'Pendientes y seguimiento': '&#x23F3;', 'Finalizado': '&#x1F3C1;'
+        } %}
+
+        {% for status_name in BUDGET_STATUSES_ORDER %}
+            {% if status_name in dashboard_totals %}
+                {% set data = dashboard_totals[status_name] %}
+                <div class="summary-box" style="{{ box_styles.get(status_name, 'border-left-color: #ccc;') }}">
+                    <span class="icon">{{ box_icons.get(status_name, '&#x25AA;') | safe }}</span>
+                    <div>
+                        <h3>{{ status_name }}</h3>
+                        {# Make count clickable #}
+                        <a href="{{ url_for('budgets_by_status', status_name=status_name) }}" class="summary-box-link">
+                            <p class="count">{{ data.count }}</p>
+                        </a>
+                        {# Optionally make amount clickable too, or just display it #}
+                        <a href="{{ url_for('budgets_by_status', status_name=status_name) }}" class="summary-box-link">
+                            <p class="total-amount">&euro;{{ "%.2f"|format(data.amount if data.amount is not none else 0.0) }}</p>
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+
+        {# Total Presupuestos Box - Not typically clickable to a filtered list by "total" status #}
+        {% set total_data = dashboard_totals.get('total_presupuesto', {'count': 0, 'amount': 0.0}) %}
         <div class="summary-box" style="border-left-color: #343a40;">
-            <span class="icon">&#x1F4B0;</span> <div><h3>Total Presupuestos</h3><p class="count">0</p><p class="total-amount">&euro;0.00</p></div>
+            <span class="icon">&#x1F4B0;</span>
+            <div>
+                <h3>Total Presupuestos</h3>
+                <p class="count">{{ total_data.count }}</p>
+                <p class="total-amount">&euro;{{ "%.2f"|format(total_data.amount if total_data.amount is not none else 0.0) }}</p>
+            </div>
         </div>
     </section>
 
+    <!-- Search, Notices, Callbacks, Budget List sections remain as previously defined -->
+    {# ... (Search section) ... #}
     <section class="search-section">
          <h3>Buscar Presupuestos</h3>
-        <form id="search-form" class="search-form-layout">
-            <input type="text" name="search_query" placeholder="Buscar por cualquier campo..." class="form-control">
-            <label for="date_from">Desde:</label>
-            <input type="date" name="date_from" id="date_from" class="form-control date-filter">
-            <label for="date_to">Hasta:</label>
-            <input type="date" name="date_to" id="date_to" class="form-control date-filter">
+        <form id="search-form" class="search-form-layout" method="GET" action="{{ url_for('index') }}">
+            <input type="text" name="search_query" placeholder="Buscar en múltiples campos..." class="form-control" value="{{ search_query_display or '' }}">
+            <label for="date_from">Desde (Entrega):</label>
+            <input type="date" name="date_from" id="date_from" class="form-control date-filter" value="{{ date_from_display or '' }}">
+            <label for="date_to">Hasta (Entrega):</label>
+            <input type="date" name="date_to" id="date_to" class="form-control date-filter" value="{{ date_to_display or '' }}">
             <button type="submit" class="btn btn-primary">Buscar</button>
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">Limpiar</a>
         </form>
     </section>
-
+    {# ... (Notices section) ... #}
     <section class="notices-section">
         <h3>Avisos de la Zona</h3>
         <div class="avisos-content"><p>No hay avisos por ahora.</p></div>
     </section>
-
+    {# ... (Callback Reminder section) ... #}
     <section class="callback-reminder-section">
-        <h3>Próximas Llamadas Programadas</h3>
-        <div class="callback-content"><p>No hay llamadas programadas próximamente.</p></div>
+        <h3><span class="icon callback-icon">&#x1F4DE;</span> Próximas Llamadas Programadas</h3>
+        <div class="callback-content">
+            {% if upcoming_callbacks and upcoming_callbacks|length > 0 %}
+                <ul class="list-style-none">
+                    {% for budget_cb in upcoming_callbacks %}
+                    <li class="callback-item {% if budget_cb.expected_callback_date < today_for_template %}past-due{% elif budget_cb.expected_callback_date == today_for_template %}due-today{% else %}upcoming{% endif %}">
+                        <strong class="patient-name">{{ budget_cb.patient_name }} {{ budget_cb.patient_lastname }}</strong> (Ficha: {{ budget_cb.file_number or 'N/A' }})
+                        - Llamar el: <span class="callback-date">{{ budget_cb.expected_callback_date.strftime('%d-%m-%Y') }}</span>
+                        (Estado actual: {{ budget_cb.status }})
+                        <a href="{{ url_for('edit_budget', budget_id=budget_cb.id) }}" class="btn btn-xs btn-outline-primary">Ver/Editar</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% else %}<p>No hay llamadas programadas próximamente.</p>{% endif %}
+        </div>
     </section>
-
-    <section class="budget-list-section">
-        <h3>Listado de Presupuestos</h3>
+    {# ... (Budget List section) ... #}
+     <section class="budget-list-section">
+        <h3>Listado de Presupuestos {% if search_query_display or date_from_display or date_to_display %}(Filtrado){% endif %}</h3>
         <a href="{{ url_for('add_budget') }}" class="btn btn-success btn-add-budget">Agregar Nuevo Presupuesto</a>
         <div class="budget-list-table-container">
             {% if budgets and budgets|length > 0 %}
             <table class="table-budgets">
-                <thead>
-                    <tr>
-                        <th>Nº Ficha</th>
-                        <th>Paciente</th>
-                        <th>Importe</th>
-                        <th>Doctor</th>
-                        <th>Fecha Próx. Llamada</th>
-                        <th>Estado</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
+                 <thead><tr><th>Nº Ficha</th><th>Paciente</th><th>Importe</th><th>Doctor</th><th>Fecha Próx. Llamada</th><th>Fecha Entrega</th><th>Estado</th><th>Acciones</th></tr></thead>
                 <tbody>
                     {% for budget in budgets %}
                     <tr>
@@ -81,16 +106,15 @@
                         <td>&euro;{{ "%.2f"|format(budget.budget_amount) if budget.budget_amount is not none else '0.00' }}</td>
                         <td>{{ budget.doctor_assigned.name if budget.doctor_assigned and budget.doctor_assigned.name else 'N/A' }}</td>
                         <td>{{ budget.expected_callback_date.strftime('%d-%m-%Y') if budget.expected_callback_date else 'N/A' }}</td>
+                        <td>{{ budget.budget_delivery_date.strftime('%d-%m-%Y') if budget.budget_delivery_date else 'N/A' }}</td>
                         <td><span class="status-badge status-{{ budget.status | lower | replace(' y ', '-') | replace(' ', '-') }}">{{ budget.status }}</span></td>
-                        <td>
-                            <a href="{{ url_for('edit_budget', budget_id=budget.id) }}" class="btn btn-sm btn-info">Editar</a>
-                        </td>
+                        <td><a href="{{ url_for('edit_budget', budget_id=budget.id) }}" class="btn btn-sm btn-info">Editar</a></td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
             {% else %}
-            <p>No hay presupuestos para mostrar. <a href="{{ url_for('add_budget') }}">Agrega uno!</a></p>
+            <p>No se encontraron presupuestos con los criterios actuales. <a href="{{ url_for('index') }}">Ver todos</a> o <a href="{{ url_for('add_budget') }}">Agrega uno nuevo.</a></p>
             {% endif %}
         </div>
     </section>

@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - Laserdental{% endblock %}
+
+{% block content %}
+<div class="dashboard-container"> {# Or a more generic .container class #}
+    <div class="page-header-flex">
+        <h2>{{ title }}</h2>
+        <a href="{{ url_for('index') }}" class="btn btn-outline-secondary btn-sm">Volver al Dashboard</a>
+    </div>
+
+    <section class="budget-list-section"> {# Reuse class from index page for consistency #}
+        {# Optional: Add a small summary for this filtered view if needed #}
+        <p>Mostrando {{ budgets|length }} presupuesto(s) con estado "{{ status_filter_name }}".</p>
+
+        <div class="budget-list-table-container">
+            {% if budgets and budgets|length > 0 %}
+            <table class="table-budgets"> {# Reuse class from index page for consistency #}
+                <thead>
+                    <tr>
+                        <th>Nº Ficha</th>
+                        <th>Paciente</th>
+                        <th>Importe</th>
+                        <th>Doctor</th>
+                        <th>Fecha Próx. Llamada</th>
+                        <th>Fecha Entrega</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for budget in budgets %}
+                    <tr>
+                        <td>{{ budget.file_number or 'N/A' }}</td>
+                        <td>{{ budget.patient_name }} {{ budget.patient_lastname }}</td>
+                        <td>&euro;{{ "%.2f"|format(budget.budget_amount) if budget.budget_amount is not none else '0.00' }}</td>
+                        <td>{{ budget.doctor_assigned.name if budget.doctor_assigned and budget.doctor_assigned.name else 'N/A' }}</td>
+                        <td>{{ budget.expected_callback_date.strftime('%d-%m-%Y') if budget.expected_callback_date else 'N/A' }}</td>
+                        <td>{{ budget.budget_delivery_date.strftime('%d-%m-%Y') if budget.budget_delivery_date else 'N/A' }}</td>
+                        <td><span class="status-badge status-{{ budget.status | lower | replace(' y ', '-') | replace(' ', '-') }}">{{ budget.status }}</span></td>
+                        <td>
+                            <a href="{{ url_for('edit_budget', budget_id=budget.id) }}" class="btn btn-sm btn-info">Editar</a>
+                            {# Add other actions if needed, like view details #}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p>No se encontraron presupuestos con el estado "{{ status_filter_name }}".</p>
+            {% endif %}
+        </div>
+    </section>
+    <div style="margin-top: 20px;">
+        <a href="{{ url_for('index') }}" class="btn btn-secondary">Volver al Dashboard</a>
+    </div>
+</div>
+{% endblock %}
