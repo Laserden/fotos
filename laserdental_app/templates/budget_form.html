@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - Laserdental{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h2>{{ legend }}</h2>
+    <form method="POST" action="" novalidate class="styled-form">
+        {{ form.hidden_tag() }}
+        <fieldset>
+            <legend>Información del Paciente</legend>
+            <div class="form-row">
+                <div class="form-group half-width">
+                    {{ form.patient_name.label(class="form-label") }} {{ form.patient_name(class="form-control") }}
+                    {% for error in form.patient_name.errors %}<span class="error">[{{ error }}]</span>{% endfor %}
+                </div>
+                <div class="form-group half-width">
+                    {{ form.patient_lastname.label(class="form-label") }} {{ form.patient_lastname(class="form-control") }}
+                    {% for error in form.patient_lastname.errors %}<span class="error">[{{ error }}]</span>{% endfor %}
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group third-width">
+                    {{ form.file_number.label(class="form-label") }} {{ form.file_number(class="form-control") }}
+                    {% for error in form.file_number.errors %}<span class="error">[{{ error }}]</span>{% endfor %}
+                </div>
+                <div class="form-group third-width">
+                    {{ form.mobile_phone.label(class="form-label") }} {{ form.mobile_phone(class="form-control") }}
+                    {% for error in form.mobile_phone.errors %}<span class="error">[{{ error }}]</span>{% endfor %}
+                </div>
+                <div class="form-group third-width">
+                    {{ form.landline_phone.label(class="form-label") }} {{ form.landline_phone(class="form-control") }}
+                    {% for error in form.landline_phone.errors %}<span class="error">[{{ error }}]</span>{% endfor %}
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group third-width">
+                    {{ form.city.label(class="form-label") }} {{ form.city(class="form-control") }}
+                    {% for error in form.city.errors %}<span class="error">[{{ error }}]</span>{% endfor %}
+                </div>
+                <div class="form-group third-width">
+                    {{ form.province.label(class="form-label") }} {{ form.province(class="form-control") }}
+                    {% for error in form.province.errors %}<span class="error">[{{ error }}]</span>{% endfor %}
+                </div>
+                <div class="form-group third-width">
+                    {{ form.gender.label(class="form-label") }} {{ form.gender(class="form-control") }}
+                    {% for error in form.gender.errors %}<span class="error">[{{ error }}]</span>{% endfor %}
+                </div>
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Detalles del Presupuesto</legend>
+            <div class="form-row">
+                <div class="form-group half-width">
+                    {{ form.budget_delivery_date.label(class="form-label") }} {{ form.budget_delivery_date(class="form-control") }}
+                    {% for error in form.budget_delivery_date.errors %}<span class="error">[{{ error }}]</span>{% endfor %}
+                </div>
+                <div class="form-group half-width">
+                    {{ form.budget_amount.label(class="form-label") }} {{ form.budget_amount(class="form-control") }}
+                    {% for error in form.budget_amount.errors %}<span class="error">[{{ error }}]</span>{% endfor %}
+                </div>
+            </div>
+             <div class="form-row">
+                <div class="form-group half-width">
+                    {{ form.clinic_review_date.label(class="form-label") }} {{ form.clinic_review_date(class="form-control") }}
+                    {% for error in form.clinic_review_date.errors %}<span class="error">[{{ error }}]</span>{% endfor %}
+                </div>
+                <div class="form-group half-width">
+                    {{ form.doctor.label(class="form-label") }} {{ form.doctor(class="form-control") }}
+                    {% for error in form.doctor.errors %}<span class="error">[{{ error }}]</span>{% endfor %}
+                </div>
+            </div>
+            <div class="form-group">
+                {{ form.annotations.label(class="form-label") }} {{ form.annotations(class="form-control", rows=4) }}
+                {% for error in form.annotations.errors %}<span class="error">[{{ error }}]</span>{% endfor %}
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Seguimiento y Estado</legend>
+             <div class="form-row">
+                <div class="form-group half-width">
+                    {{ form.expected_callback_date.label(class="form-label") }} {{ form.expected_callback_date(class="form-control") }}
+                    {% for error in form.expected_callback_date.errors %}<span class="error">[{{ error }}]</span>{% endfor %}
+                </div>
+                <div class="form-group half-width">
+                    {{ form.status.label(class="form-label") }} {{ form.status(class="form-control") }}
+                    {% for error in form.status.errors %}<span class="error">[{{ error }}]</span>{% endfor %}
+                </div>
+            </div>
+        </fieldset>
+
+        <div class="form-actions">
+            {{ form.submit(class="btn btn-primary") }}
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

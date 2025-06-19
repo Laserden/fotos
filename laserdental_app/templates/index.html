@@ -1,0 +1,98 @@
+<!-- templates/index.html -->
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Laserdental{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <h2>Bienvenido al Dashboard{% if current_user.is_authenticated %}, {{ current_user.username }}{% endif %}!</h2>
+
+    <section class="summary-boxes">
+        <div class="summary-box" style="border-left-color: #28a745;">
+            <span class="icon">&#x1F44D;</span> <div><h3>Aceptado</h3><p class="count">0</p><p class="total-amount">&euro;0.00</p></div>
+        </div>
+        <div class="summary-box" style="border-left-color: #dc3545;">
+            <span class="icon">&#x1F44E;</span> <div><h3>Rechazado totalmente</h3><p class="count">0</p><p class="total-amount">&euro;0.00</p></div>
+        </div>
+        <div class="summary-box" style="border-left-color: #6f42c1;">
+            <span class="icon">&#x1F4B8;</span> <div><h3>Aceptado financiado</h3><p class="count">0</p><p class="total-amount">&euro;0.00</p></div>
+        </div>
+        <div class="summary-box" style="border-left-color: #fd7e14;">
+            <span class="icon">&#x26A1;</span> <div><h3>Aceptado pronto pago</h3><p class="count">0</p><p class="total-amount">&euro;0.00</p></div>
+        </div>
+        <div class="summary-box" style="border-left-color: #17a2b8;">
+            <span class="icon">&#x1F4DD;</span> <div><h3>Según tratamiento</h3><p class="count">0</p><p class="total-amount">&euro;0.00</p></div>
+        </div>
+        <div class="summary-box" style="border-left-color: #ffc107;">
+            <span class="icon">&#x23F3;</span> <div><h3>Pendientes y seguimiento</h3><p class="count">0</p><p class="total-amount">&euro;0.00</p></div>
+        </div>
+         <div class="summary-box" style="border-left-color: #007bff;">
+            <span class="icon">&#x1F3C1;</span> <div><h3>Finalizado</h3><p class="count">0</p><p class="total-amount">&euro;0.00</p></div>
+        </div>
+        <div class="summary-box" style="border-left-color: #343a40;">
+            <span class="icon">&#x1F4B0;</span> <div><h3>Total Presupuestos</h3><p class="count">0</p><p class="total-amount">&euro;0.00</p></div>
+        </div>
+    </section>
+
+    <section class="search-section">
+         <h3>Buscar Presupuestos</h3>
+        <form id="search-form" class="search-form-layout">
+            <input type="text" name="search_query" placeholder="Buscar por cualquier campo..." class="form-control">
+            <label for="date_from">Desde:</label>
+            <input type="date" name="date_from" id="date_from" class="form-control date-filter">
+            <label for="date_to">Hasta:</label>
+            <input type="date" name="date_to" id="date_to" class="form-control date-filter">
+            <button type="submit" class="btn btn-primary">Buscar</button>
+        </form>
+    </section>
+
+    <section class="notices-section">
+        <h3>Avisos de la Zona</h3>
+        <div class="avisos-content"><p>No hay avisos por ahora.</p></div>
+    </section>
+
+    <section class="callback-reminder-section">
+        <h3>Próximas Llamadas Programadas</h3>
+        <div class="callback-content"><p>No hay llamadas programadas próximamente.</p></div>
+    </section>
+
+    <section class="budget-list-section">
+        <h3>Listado de Presupuestos</h3>
+        <a href="{{ url_for('add_budget') }}" class="btn btn-success btn-add-budget">Agregar Nuevo Presupuesto</a>
+        <div class="budget-list-table-container">
+            {% if budgets and budgets|length > 0 %}
+            <table class="table-budgets">
+                <thead>
+                    <tr>
+                        <th>Nº Ficha</th>
+                        <th>Paciente</th>
+                        <th>Importe</th>
+                        <th>Doctor</th>
+                        <th>Fecha Próx. Llamada</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for budget in budgets %}
+                    <tr>
+                        <td>{{ budget.file_number or 'N/A' }}</td>
+                        <td>{{ budget.patient_name }} {{ budget.patient_lastname }}</td>
+                        <td>&euro;{{ "%.2f"|format(budget.budget_amount) if budget.budget_amount is not none else '0.00' }}</td>
+                        <td>{{ budget.doctor_assigned.name if budget.doctor_assigned and budget.doctor_assigned.name else 'N/A' }}</td>
+                        <td>{{ budget.expected_callback_date.strftime('%d-%m-%Y') if budget.expected_callback_date else 'N/A' }}</td>
+                        <td><span class="status-badge status-{{ budget.status | lower | replace(' y ', '-') | replace(' ', '-') }}">{{ budget.status }}</span></td>
+                        <td>
+                            <a href="{{ url_for('edit_budget', budget_id=budget.id) }}" class="btn btn-sm btn-info">Editar</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p>No hay presupuestos para mostrar. <a href="{{ url_for('add_budget') }}">Agrega uno!</a></p>
+            {% endif %}
+        </div>
+    </section>
+</div>
+{% endblock %}

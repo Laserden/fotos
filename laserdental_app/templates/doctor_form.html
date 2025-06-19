@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="form-container-generic"> {# Generic class name #}
+    <h2>{{ legend }}</h2>
+    <form method="POST" action="" novalidate class="form-stacked"> {# Generic class name #}
+        {{ form.hidden_tag() }}
+        <div> {# Simple div for form group #}
+            {{ form.name.label(class="form-label-generic") }} {# Generic class name #}
+            {{ form.name(class="form-control-generic", placeholder="Ej: Dr. Juan Pérez") }} {# Generic class name #}
+            {% if form.name.errors %}
+                <div class="errors-generic"> {# Generic class name #}
+                    {% for error in form.name.errors %}<span>{{ error }}</span>{% endfor %}
+                </div>
+            {% endif %}
+        </div>
+        <div class="form-actions-generic"> {# Generic class name #}
+            {{ form.submit(class="btn btn-primary") }}
+            <a href="{{ url_for('list_doctors') }}" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
