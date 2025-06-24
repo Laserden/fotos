@@ -1,4 +1,5 @@
 # run.py
+# This is a test comment for the Laserdental application.
 from app import create_app, db
 from app.models import User
 
